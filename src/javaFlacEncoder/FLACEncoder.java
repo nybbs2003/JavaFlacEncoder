@@ -24,8 +24,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -154,7 +155,7 @@ public class FLACEncoder {
         usedBlockEncodeRequests = new LinkedBlockingQueue<BlockEncodeRequest>();
         //usedIntArrays = new LinkedBlockingQueue<int[]>();
         recycler = new ArrayRecycler();
-        blockQueue = new Vector<int[]>();
+        blockQueue = Collections.synchronizedList(new ArrayList<int[]>());
         StreamConfiguration defaultStreamConfig = new StreamConfiguration();
         encodingConfig = new EncodingConfiguration();
         frame = new Frame(defaultStreamConfig);
