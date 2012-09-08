@@ -29,10 +29,9 @@ import java.nio.channels.FileChannel;
  */
 public class FLACFileOutputStream implements FLACOutputStream{
 
-    FileOutputStream fos;
-    long position;
-    long size;
-    boolean valid;
+    private final FileOutputStream fos;
+    private long position;
+    private long size;
 
     /**
      * Constructor. Create a FLACFileOutputStream using the given filename. If
@@ -42,12 +41,10 @@ public class FLACFileOutputStream implements FLACOutputStream{
      */
     public FLACFileOutputStream(String filename) throws IOException {
         fos = new FileOutputStream(filename);
-        valid = true;
     }
 
     public FLACFileOutputStream(File file) throws IOException {
        fos = new FileOutputStream(file);
-       valid = true;
     }
 
     /**
@@ -60,7 +57,6 @@ public class FLACFileOutputStream implements FLACOutputStream{
        FileChannel fc = fos.getChannel();
        position = fc.position();
        this.fos = fos;
-       valid = true;
     }
     /**
      * Get the status of this file stream(whether the file was successfully open
@@ -68,7 +64,7 @@ public class FLACFileOutputStream implements FLACOutputStream{
      * @return true if file was successfully opened, false otherwise.
      */
     @Deprecated
-    public boolean isValid() { return valid; }
+    public boolean isValid() { return true; }
 
     /**
      * Attempt to seek to the given location within this stream. It is not
