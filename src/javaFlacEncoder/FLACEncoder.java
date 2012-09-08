@@ -73,7 +73,7 @@ public class FLACEncoder {
 
     /* Set true if frames are actively being encoded(can't change settings
      * while this is true) */
-    private volatile Boolean isEncoding = false;
+    private volatile Boolean isEncoding = false; // XXX: This is literally never true.
 
     /* synchronize on this object when encoding or changing configurations */
     private final Object configWriteLock = new Object();
