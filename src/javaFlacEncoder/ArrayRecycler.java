@@ -49,11 +49,11 @@ public class ArrayRecycler {
     public int[] getArray(int size) {
        final int[] found = usedIntArrays.poll();
        int[] result = found;
-       if(result == null) {
+       if(found == null) {
           result = new int[size];
           //System.err.println("Created new int array from null");
        }
-       else if(result.length < size) {
+       else if(found.length < size) {
           usedIntArrays.offer(found);
           result = new int[size];
           //System.err.println("created new int array from bad size");
