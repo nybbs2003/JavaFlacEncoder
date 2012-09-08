@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -141,14 +140,14 @@ public class BlockThreadManager implements Runnable{
                if(outstandingCount > count) {
                   try {
                      outstandingCountLock.wait();
-                  }catch(InterruptedException e) {
+                  } catch (InterruptedException e) {
                      // XXX Ignored
                   }
                }
                else
-                  loop = false;
+                  loop = false; // XXX Why not just break?
             }
-         }while(loop);
+         } while(loop);
     }
 
     /**
@@ -162,9 +161,8 @@ public class BlockThreadManager implements Runnable{
     synchronized public boolean addFrameThread(Frame frame) {
         FrameThread ft = new FrameThread(frame, this);
         inactiveFrameThreads.add(ft);
-        boolean r = true;
         startFrameThreads();
-        return r;
+        return true;
     }
 
     /**
