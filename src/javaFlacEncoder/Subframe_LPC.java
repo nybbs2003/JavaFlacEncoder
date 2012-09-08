@@ -189,7 +189,7 @@ public class Subframe_LPC extends Subframe {
             _increment, result, _frameSampleSize, _lowOrderBits,
             _precision, _shift, _quantizedCoeffs, _errors, _lpcOrder,rice);
         int totalBits = result.getTotalBits();
-        this.lastEncodedSize = (int)totalBits;
+        this.lastEncodedSize = totalBits;
 
         if(DEBUG_LEV > 0) {
             System.err.println("lastencodedSize set: "+this.lastEncodedSize);
@@ -198,7 +198,8 @@ public class Subframe_LPC extends Subframe {
         return result;
     }
 
-    public int encodeSamples(int[] samples, int count, int start, int skip,
+    @Override
+	public int encodeSamples(int[] samples, int count, int start, int skip,
         EncodedElement dataEle, int offset, int unencSampleSize ) {
 
         encodeSamples(samples, count, start, skip,
@@ -211,7 +212,7 @@ public class Subframe_LPC extends Subframe {
         dataEle.offset = result.offset;
         dataEle.previous = result.previous;
         dataEle.next = result.next;
-        this.lastEncodedSize = (int)totalBits;
+        this.lastEncodedSize = totalBits;
 
         return count;
 
@@ -232,7 +233,7 @@ public class Subframe_LPC extends Subframe {
         dataEle.addInt(shift, 5);
         //System.err.println("shift:order:type::"+shift+":"+order+":"+encodedType);
         for(int i = 1; i <= order; i++) {
-            int val = (int)-coeff[i];
+            int val = -coeff[i];
             dataEle.addInt(val, precision);
         }
     }
@@ -442,7 +443,7 @@ public class Subframe_LPC extends Subframe {
                          sampleIndex+=increment;
                 case 13: temp -= coeffs[13]*samples[sampleIndex];
                          sampleIndex+=increment;
-            }
+            } // TODO: What the fuck
             tempOrder = 12;
           } 
           switch(tempOrder) {
