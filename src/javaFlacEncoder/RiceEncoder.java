@@ -30,13 +30,11 @@ public class RiceEncoder {
      * increments of 10 */
     public static int DEBUG_LEV = 0;
 
-    private static final int POSITIVE = 0;
-    private static final int NEGATIVE = 1;
     private static final int STOP_BIT = 0xFFFFFFFF;
     private static final int UNARY_BIT = 0;
     
-    private int[] _dataToEncode = null;
-    private int[] _bitsToEncode = null;
+    private int[] _dataToEncode;
+    private int[] _bitsToEncode;
 
     /**
      * Constructor. A RiceEncoder object is used(as opposed to potentially
