@@ -38,21 +38,21 @@ public class EncodedElement {
 
     /** Previous element in list. At current times, this should not be dependend
      * on to be set */
-    EncodedElement previous = null;
+    EncodedElement previous;
 
     /** Next element in list. */
-    EncodedElement next = null;
+    EncodedElement next;
 
     /** Data stored by this element. Member usableBits should be used to track
      * the last valid index at a bit level. */
-    byte[] data = null;
+    byte[] data;
 
     /** Use to track the last valid index of the data array at a bit level. For
      * example, a value of "10" would mean the first byte and two low-order bits
      * of the second byte are used. usableBits must always be equal or greater
      * than offset.
      */
-    int usableBits = 0;//i.e, the last write location in 'data' array.
+    int usableBits; //i.e, the last write location in 'data' array.
 
     /** Used to signify the index of the first valid bit of the data array. For
      * purposes of speed, it is not always best to pack the data starting at
@@ -66,8 +66,6 @@ public class EncodedElement {
      * of 100. This array can be replaced with a call to setData(...).
      */
     public EncodedElement() {
-        offset = 0;
-        usableBits = 0;
         data = new byte[100];
     }
 
@@ -392,10 +390,8 @@ public class EncodedElement {
             //add int to child
             return next.packInt(inputArray, bitSize, start+writeCount*(skip+1), skip, countA);
         }
-        else {
-            //return last object we write to.
-            return this;
-        }
+		// return last object we write to.
+		return this;
     }
 
     /**
@@ -457,11 +453,9 @@ public class EncodedElement {
             //add int to child
             return next.packIntByBits(inputA, inputBits, inputOffset, countA);
         }
-        else {
-            //System.err.println("returning....done");
-            //return if this is last object we wrote to.
-            return this;
-        }
+		//System.err.println("returning....done");
+		// return if this is last object we wrote to.
+		return this;
     }
 
     /**
@@ -547,7 +541,7 @@ public class EncodedElement {
         int upShift = 40-count-currentOffset;
         //get the value to a workable place and clear the extraneous bits
         long upperMask = -1 >>> (63-count);
-        long val = (long)value & upperMask;
+        long val = value & upperMask;
         
         val = val << upShift;
         //get the bytes ready
@@ -880,9 +874,8 @@ start: {
         if(DEBUG_LEV > 30)
             System.err.println("EncodedElement::packIntByBits : Begin");
         //int offsetCounter = 0;
-        int inputIter = 0;
         int startPos = startPosIn;//the position to write to in output array
-        inputIter = inputOffset;
+        //int inputIter = inputOffset;
         int inputStop = countA+inputOffset;
         for(int valI = inputOffset; valI < inputStop; valI++) {
             //inputIter = valI+inputOffset;
