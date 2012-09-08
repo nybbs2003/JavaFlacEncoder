@@ -39,22 +39,26 @@ public class ArrayRecycler {
         usedIntArrays.add(array);
     }
 
+    // TODO: Doesn't this grow forever? If arrays too small, never get removed.
+
     /**
      *
-     * @param size
+     * @param size the minimum size the array must be
      * @return
      */
     public int[] getArray(int size) {
-       int[] result = usedIntArrays.poll();
+       final int[] found = usedIntArrays.poll();
+       int[] result = found;
        if(result == null) {
           result = new int[size];
           //System.err.println("Created new int array from null");
        }
        else if(result.length < size) {
-          usedIntArrays.offer(result);
+          usedIntArrays.offer(found);
           result = new int[size];
           //System.err.println("created new int array from bad size");
        }
        return result;
     }
+
 }
