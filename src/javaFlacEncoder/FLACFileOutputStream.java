@@ -29,9 +29,9 @@ import java.nio.channels.FileChannel;
  */
 public class FLACFileOutputStream implements FLACOutputStream{
 
-    FileOutputStream fos = null;
+    FileOutputStream fos;
     long position;
-    long size = 0;
+    long size;
     boolean valid;
 
     /**
@@ -41,13 +41,11 @@ public class FLACFileOutputStream implements FLACOutputStream{
      * @param filename file to connect to output stream.
      */
     public FLACFileOutputStream(String filename) throws IOException {
-        position = 0;
         fos = new FileOutputStream(filename);
         valid = true;
     }
 
     public FLACFileOutputStream(File file) throws IOException {
-       position = 0;
        fos = new FileOutputStream(file);
        valid = true;
     }
