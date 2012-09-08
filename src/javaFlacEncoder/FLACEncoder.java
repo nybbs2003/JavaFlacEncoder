@@ -268,7 +268,7 @@ public class FLACEncoder {
         //re-write the updated stream info.
 
         if(DEBUG_LEV > 0)
-            System.err.println("FLACEncoder::closeFLACStream : Begin");
+            System.err.println("FLACEncoder::closeFLACStream : Begin"); // XXX
         streamConfig.setMaxBlockSize(maxBlockSize);
         streamConfig.setMinBlockSize(minBlockSize);
         byte[] md5 = md.digest();
@@ -339,11 +339,11 @@ public class FLACEncoder {
         int maxFrames = samples.length/channels;//input wav frames, not flac
         int validSamples = count*channels;
         if(DEBUG_LEV > 0) {
-            System.err.println("addSamples(...): ");
-            System.err.println("maxFrames: "+maxFrames);
-            System.err.println("validSamples: "+validSamples);
+            System.err.println("addSamples(...): "); // XXX
+            System.err.println("maxFrames: "+maxFrames); // XXX
+            System.err.println("validSamples: "+validSamples); // XXX
             if(DEBUG_LEV > 10)
-               System.err.println("count:"+count+":channels:"+channels);
+               System.err.println("count:"+count+":channels:"+channels); // XXX
         }
 
         if(count <= maxFrames) {//sample count is ok
@@ -353,7 +353,7 @@ public class FLACEncoder {
             if(unfinishedBlock != null) {
                 //finish off last block first.
                 if(DEBUG_LEV > 10) {
-                    System.err.println("addSamples(...): filling unfinishedBlock");
+                    System.err.println("addSamples(...): filling unfinishedBlock"); // XXX
                 }
                 
                 int blockSize = streamConfig.getMaxBlockSize();
@@ -361,7 +361,7 @@ public class FLACEncoder {
                 int unfinishedBlockRemaining = blockSize*channels-unfinishedBlockUsed;
                 if(unfinishedBlockRemaining <=0) {
                     System.err.println("MAJOR ERROR HERE. Unfinsihed block remaining invalid: "+
-                            unfinishedBlockRemaining);
+                            unfinishedBlockRemaining); // XXX
                     System.exit(-1);
                 }
                 
@@ -383,13 +383,13 @@ public class FLACEncoder {
                 }
                 else if(unfinishedBlockUsed > blockSize*channels) {
                     System.err.println("Error: FLACEncoder.addSamples(...) " +
-                            "unfinished block = "+unfinishedBlockUsed);
+                            "unfinished block = "+unfinishedBlockUsed); // XXX
                     System.exit(-1);
                 }
             }
             while(samplesUsed < validSamples) {
                 if(DEBUG_LEV > 20)
-                    System.err.println("addSamples(...): creating new block");
+                    System.err.println("addSamples(...): creating new block"); // XXX
                 //copy values to approrpiate locations
                 //add each finished array to the queue
                 /*<implement_for_variable_blocksize>
@@ -401,7 +401,7 @@ public class FLACEncoder {
                 if(nextSampleStop > validSamples) {
                     //We don't have enough samples to make a full block.
                     if(DEBUG_LEV > 20)
-                        System.err.println("addSamples(...): setting partial Block");
+                        System.err.println("addSamples(...): setting partial Block"); // XXX
                     //fill unfinishedBlock
                     nextSampleStop = validSamples;
                     unfinishedBlock = block;
@@ -420,12 +420,12 @@ public class FLACEncoder {
         }
         else {
             System.err.println("Error: FLACEncoder.addSamples "+
-                    "given count out of bounds");
+                    "given count out of bounds"); // XXX
         }
 
         if(DEBUG_LEV > 20) {
-            System.err.println("Blocks stored: " +blockQueue.size());
-            System.err.println("Samples in partial block: " + unfinishedBlockUsed);
+            System.err.println("Blocks stored: " +blockQueue.size()); // XXX
+            System.err.println("Samples in partial block: " + unfinishedBlockUsed); // XXX
         }
         return added;
     }
@@ -446,19 +446,19 @@ public class FLACEncoder {
             for(int i  = 0; i < count; i++) {
                 String temp = Integer.toString(i)+":";
                 temp = temp + Integer.toString(block[i*iter]);
-                System.err.print(temp);
+                System.err.print(temp); // XXX
                 pOut.println(temp);
             }
             pOut.flush();
             pOut.close();
             fout.close();
             System.exit(0);
-            System.err.println("sample file written:");
+            System.err.println("sample file written:"); // XXX
         }
         catch(FileNotFoundException e) {
-            System.err.println("Error creating file");
+            System.err.println("Error creating file"); // XXX
         }catch(IOException e) {
-            System.err.println("Error handling file");
+            System.err.println("Error handling file"); // XXX
         }
 
     }
@@ -477,14 +477,14 @@ public class FLACEncoder {
             try {
                 writeDataToOutput(ber.result.getNext());
             }catch(IOException e) {
-                System.err.println("blockFinished: Error writing to output");
+                System.err.println("blockFinished: Error writing to output"); // XXX
                 e.printStackTrace();
             }
 
             //update encodedCount and count, and blocks, MD5
             if(ber.count != ber.encodedSamples) {
                 System.err.println("Error encoding frame number: "+
-                        ber.frameNumber+", FLAC stream potentially invalid");
+                        ber.frameNumber+", FLAC stream potentially invalid"); // XXX
             }
             samplesInStream += ber.encodedSamples;
             if(ber.encodedSamples > maxBlockSize)
@@ -534,7 +534,7 @@ public class FLACEncoder {
         while(count > 0 && blocksLeft > 0) {
             if(DEBUG_LEV > 20) {
                 System.err.println("while: count:blocksLeft  : "+
-                        count+":"+blocksLeft);
+                        count+":"+blocksLeft); // XXX
             }
             int[] block = blockQueue.get(0);
             //encode
@@ -573,7 +573,7 @@ public class FLACEncoder {
                         channels-1, result, nextFrameNumber);
                 if(encoded != encodedSamples) {
                     //ERROR! Return immediately. Do not add results to output.
-                    System.err.println("FLACEncoder::encodeSamples : (end)Error in encoding");
+                    System.err.println("FLACEncoder::encodeSamples : (end)Error in encoding"); // XXX
                     count = -1;
                 }
                 else {
@@ -640,7 +640,7 @@ public class FLACEncoder {
         while(count > 0 && blocksLeft > 0 && !encodeError) {
             if(DEBUG_LEV > 20) {
                 System.err.println("while: count:blocksLeft  : "+
-                        count+":"+blocksLeft);
+                        count+":"+blocksLeft); // XXX
             }
             int[] block = blockQueue.get(0);
             //encode
@@ -651,7 +651,7 @@ public class FLACEncoder {
                     channels-1, result, nextFrameNumber);
             if(encoded != encodedSamples) {
                 //ERROR! Return immediately. Do not add results to output.
-                System.err.println("FLACEncoder::encodeSamples : Error in encoding");
+                System.err.println("FLACEncoder::encodeSamples : Error in encoding"); // XXX
                 encodeError = true;
                 break;
             }
@@ -697,7 +697,7 @@ public class FLACEncoder {
                         channels-1, result, nextFrameNumber);
                 if(encoded != encodedSamples) {
                     //ERROR! Return immediately. Do not add results to output.
-                    System.err.println("FLACEncoder::encodeSamples : (end)Error in encoding");
+                    System.err.println("FLACEncoder::encodeSamples : (end)Error in encoding"); // XXX
                     count = -1;
                 }
                 else {
@@ -729,7 +729,7 @@ public class FLACEncoder {
         else if (end == true) {
                 System.err.println("End set but not done. Error possible. "+
                         "This can also happen if number of samples requested to " +
-                        "encode exeeds available samples");
+                        "encode exeeds available samples"); // XXX
         }
         return encodedCount;
     }
