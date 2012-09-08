@@ -26,8 +26,8 @@ package javaFlacEncoder;
  * @author Preston Lacey
  */
 public class EncodedElement_32 extends EncodedElement {
-   int[] data_32 = null;
-   boolean byteArrayValid = false;
+   int[] data_32;
+   boolean byteArrayValid;
    public EncodedElement_32() {
       offset = 0;
       usableBits = 0;
@@ -222,7 +222,7 @@ public class EncodedElement_32 extends EncodedElement {
         byteArrayValid = false;
         //go to end if we're not there.
         if(next != null) {
-            EncodedElement end = EncodedElement_32.getEnd_S(next);
+            EncodedElement end = EncodedElement.getEnd_S(next);
             return end.packIntByBits(inputA, inputBits, inputOffset, countA);
         }
 
@@ -265,11 +265,9 @@ public class EncodedElement_32 extends EncodedElement {
             //add int to child
             return next.packIntByBits(inputA, inputBits, inputOffset, countA);
         }
-        else {
-            //System.err.println("returning....done");
-            //return if this is last object we wrote to.
-            return this;
-        }
+		//System.err.println("returning....done");
+		//return if this is last object we wrote to.
+		return this;
     }
 
     @Override
@@ -300,7 +298,7 @@ public class EncodedElement_32 extends EncodedElement {
     public EncodedElement convertToEncodedElement() {
         EncodedElement ele = new EncodedElement();
         byte[] result = new byte[data_32.length*4];
-        int byteBase = -4;
+        //int byteBase = -4;
         int valueIndex = 0;
         /*for(int i = 0; i < data_32.length/4; i++) {
             int value0 = data_32[valueIndex++];
@@ -386,7 +384,7 @@ public class EncodedElement_32 extends EncodedElement {
     public EncodedElement addInt(int input, int bitCount) {
         byteArrayValid = false;
         if(next != null) {
-            EncodedElement end = EncodedElement_32.getEnd_S(next);
+            EncodedElement end = EncodedElement.getEnd_S(next);
             return end.addInt(input, bitCount);
         }
         else if(data_32.length*32 < usableBits+bitCount) {
