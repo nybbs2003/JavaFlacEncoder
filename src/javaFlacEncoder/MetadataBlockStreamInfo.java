@@ -29,7 +29,7 @@ package javaFlacEncoder;
  *
  * @author Preston Lacey
  */
-public class MetadataBlockStreamInfo {
+public final class MetadataBlockStreamInfo {
     /** For Debugging: Higher level equals more debug statements */
     static int DEBUG_LEV = 0;
 /*    int minimumBlockSize = 4096;//32768;//16 bits used; 16 minimum valid
@@ -42,11 +42,9 @@ public class MetadataBlockStreamInfo {
     long totalSamplesInStream = 0;//36 bits used. 0 implies unknown.
     byte[] md5Hash;
 */
-    /**
-     * Constructor. This class defines only static methods and fields.
-     */
-    public MetadataBlockStreamInfo() {
-        
+
+    private MetadataBlockStreamInfo() {
+        // This class defines only static methods and fields.
     }
 
     /**
@@ -105,7 +103,7 @@ public class MetadataBlockStreamInfo {
      * 
      * @return size of properly formed FLAC STREAMINFO metadata block.
      */
-    static public int getByteSize() {
+    public static int getByteSize() {
         int size = 0;
         size += 16;
         size += 16;
@@ -121,6 +119,4 @@ public class MetadataBlockStreamInfo {
         return size;
     }
 
-
 }
-
