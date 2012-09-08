@@ -167,12 +167,12 @@ public class FLACEncoder {
             threadManager.addFrameThread(threadedFrames[i]);
         }
         try {
-            md = MessageDigest.getInstance("md5");
+            md = MessageDigest.getInstance("MD5");
             reset();
             clear();
-        }catch(NoSuchAlgorithmException e) {
-            System.err.println("Critical Error: No md5 algorithm exists. " +
-                    "This encoder can not function.");
+        } catch (NoSuchAlgorithmException e) {
+        	throw new RuntimeException("Impossible error: No MD5 algorithm exists. " +
+        			"This encoder cannot function.");
         }
     }
 
