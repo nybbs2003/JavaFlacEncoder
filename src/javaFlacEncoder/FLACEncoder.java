@@ -833,7 +833,7 @@ public class FLACEncoder {
      * Get number of samples that are available to encode. This includes samples
      * which are in a partial block(and so would only be written if "end" was
      * set true in encodeSamples(int count,boolean end);
-     * @return number of samples availble to encode.
+     * @return number of samples available to encode.
      */
     public int samplesAvailableToEncode() {
         int available = 0;
@@ -856,6 +856,4 @@ public class FLACEncoder {
         out = fos;
     }
 
-
-    //int[] block = new int[blockSize*channels];
 }
