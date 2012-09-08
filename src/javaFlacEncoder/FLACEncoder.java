@@ -742,14 +742,14 @@ public class FLACEncoder {
      * @param count
      * @param channels
      */
-    private void addSamplesToMD5(int[] samples, int count, int channels, 
-            int sampleSize) {
-
+    private void addSamplesToMD5(int[] samples, final int count, final int channels, 
+            final int sampleSize) {
         int bytesPerSample = sampleSize/8;
         if(sampleSize%8 != 0)
             bytesPerSample++;
-        if(_dataMD5 == null || _dataMD5.length < count*bytesPerSample*channels) {
-           _dataMD5 = new byte[count*bytesPerSample*channels];
+    	final int length = count * bytesPerSample * channels;
+        if(_dataMD5 == null || _dataMD5.length < length) {
+           _dataMD5 = new byte[length];
         }
         byte[] dataMD5 = _dataMD5;
         //byte[] dataMD5 = new byte[count*bytesPerSample*channels];
@@ -759,7 +759,7 @@ public class FLACEncoder {
                 dataMD5[destIndexBase+x] = (byte)(samples[i] >> x*8);
             }
         }
-        md.update(dataMD5, 0, count*bytesPerSample*channels);
+        md.update(dataMD5, 0, length);
     }
 
     /**
