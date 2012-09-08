@@ -79,7 +79,7 @@ public class FLACEncoder {
     private final Object configWriteLock = new Object();
 
     /* Store for blocks which are ready to encode. Always insert end, pop head*/
-    private List<int[]> blockQueue;
+    private List<int[]> blockQueue; // XXX: Make LinkedList?
 
     /* Stores samples for a block which is not yet full(not ready for queue) */
     private int[] unfinishedBlock;
@@ -132,11 +132,6 @@ public class FLACEncoder {
      * the header info(md5, minBlockSize, etc), once encoding is done
      */
     private long streamHeaderPos;
-
-    /* should be set when any error has occured that invalidates results.
-     * This should not be relied on currently, practice not followed well.
-     */ 
-    private boolean error;
 
     /* store used encodeRequests so we don't have to reallocate space for them*/
     private BlockingQueue<BlockEncodeRequest> usedBlockEncodeRequests;
@@ -484,7 +479,6 @@ public class FLACEncoder {
             }catch(IOException e) {
                 System.err.println("blockFinished: Error writing to output");
                 e.printStackTrace();
-                error = true;
             }
 
             //update encodedCount and count, and blocks, MD5
