@@ -19,6 +19,7 @@
 
 package javaFlacEncoder;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -31,10 +32,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author Preston Lacey
  */
 public class ArrayRecycler {
-    LinkedBlockingQueue<int[]> usedIntArrays = null;
+    BlockingQueue<int[]> usedIntArrays;
+
     ArrayRecycler() {
         usedIntArrays = new LinkedBlockingQueue<int[]>();
     }
+
     public void add(int[] array) {
         usedIntArrays.add(array);
     }
