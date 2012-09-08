@@ -778,16 +778,14 @@ public class FLACEncoder {
         int writtenBytes = 0;
         int offset = 0;
         EncodedElement current = data;
-        int currentByte = 0;
         byte unfullByte = 0;
         byte[] eleData = null;
-        int usableBits = 0;
         int lastByte = 0;
         while(current != null) {
             //System.err.println("current != null" );
             eleData = current.getData();
-            usableBits = current.getUsableBits();
-            currentByte = 0;
+            int usableBits = current.getUsableBits();
+            int currentByte = 0;
             //if offset is not zero, merge first byte with existing byte
             if(offset != 0) {
                 unfullByte = (byte)(unfullByte | eleData[currentByte++]);
@@ -810,6 +808,7 @@ public class FLACEncoder {
         }
         //if non-full byte remains. write.
         if(offset != 0) {
+        	assert eleData != null;
             out.write(eleData, lastByte, 1);
         }
         return writtenBytes;
