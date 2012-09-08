@@ -80,7 +80,8 @@ public class FLACFileOutputStream implements FLACOutputStream{
      * @param pos target position to seek to.
      * @return current position after seek attempt.
      */
-    public long seek(long pos) throws IOException{
+    @Override
+	public long seek(long pos) throws IOException{
         FileChannel fc = fos.getChannel();
         fc.position(pos);
         return pos;
@@ -92,15 +93,12 @@ public class FLACFileOutputStream implements FLACOutputStream{
      * @throws IOException IOException will be raised if an error occurred while
      * writing.
      */
-    public void write(byte data) throws IOException {
-        try {
-            fos.write(data);
-            if(position + 1 > size)
-                size = position+1;
-            position+= 1;
-        }catch(IOException e) {
-           throw e;
-        }
+    @Override
+	public void write(byte data) throws IOException {
+        fos.write(data);
+        if(position + 1 > size)
+            size = position+1;
+        position+= 1;
     }
 
     /**
@@ -112,16 +110,13 @@ public class FLACFileOutputStream implements FLACOutputStream{
      * @return number of bytes written.
      * @throws IOException IOException upon a write error.
      */
-    public int write(byte[] data, int offset, int count) throws IOException {
+    @Override
+	public int write(byte[] data, int offset, int count) throws IOException {
         int result = count;
-        try {
-            fos.write(data,offset,count);
-            if(position + count > size)
-                size = position+count;
-            position+= count;
-        }catch(IOException e) {
-           throw e;
-        }
+        fos.write(data,offset,count);
+        if(position + count > size)
+            size = position+count;
+        position+= count;
         return result;
     }
 
@@ -130,7 +125,8 @@ public class FLACFileOutputStream implements FLACOutputStream{
      * This takes into account seeking to different portions.
      * @return total length written.
      */
-    public long size() {
+    @Override
+	public long size() {
         return size;
     }
 
@@ -138,7 +134,8 @@ public class FLACFileOutputStream implements FLACOutputStream{
      * Test whether this stream is seekable.
      * @return true if stream is seekable, false otherwise
      */
-    public boolean canSeek() {
+    @Override
+	public boolean canSeek() {
         return true;
     }
 
@@ -146,11 +143,13 @@ public class FLACFileOutputStream implements FLACOutputStream{
      * Get the current write position of this stream.
      * @return current write position.
      */
-    public long getPos() {
+    @Override
+	public long getPos() {
         return position;
     }
 
     public void close() throws IOException {
        fos.close();
     }
+
 }
