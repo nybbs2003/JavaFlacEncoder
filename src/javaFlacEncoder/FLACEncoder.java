@@ -18,13 +18,15 @@
  */
 
 package javaFlacEncoder;
-import java.util.Vector;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.io.IOException;
-import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -63,10 +65,10 @@ public class FLACEncoder {
     private int MAX_THREADED_FRAMES = Runtime.getRuntime().availableProcessors();
 
     /* encodingConfig: Must never stay null(default supplied by constructor) */
-    EncodingConfiguration encodingConfig = null;
+    EncodingConfiguration encodingConfig;
 
     /* streamConfig: Must never stay null(default supplied by constructor) */
-    StreamConfiguration streamConfig = null;
+    StreamConfiguration streamConfig;
 
     /* Set true if frames are actively being encoded(can't change settings
      * while this is true) */
@@ -76,36 +78,36 @@ public class FLACEncoder {
     private final Object configWriteLock = new Object();
 
     /* Store for blocks which are ready to encode. Always insert end, pop head*/
-    private Vector<int[]> blockQueue = null;
+    private List<int[]> blockQueue;
 
     /* Stores samples for a block which is not yet full(not ready for queue) */
-    private int[] unfinishedBlock = null;
+    private int[] unfinishedBlock;
 
     /* Stores count of inter-frame samples in unfinishedBlock */
-    private int unfinishedBlockUsed = 0;
+    private int unfinishedBlockUsed;
 
     /* Object to write results to. Must be set before opening stream */
-    private FLACOutputStream out = null;
+    private FLACOutputStream out;
 
     /* contains FLAC_id used in the flac stream header to signify FLAC format */
     EncodedElement FLAC_id = FLACStreamIdentifier.getIdentifier();
 
     /* Frame object used to encode when not using threads */
-    Frame frame = null;
+    Frame frame;
 
     
     /* md object used to calculate MD5 hash */
-    MessageDigest md = null;
+    MessageDigest md;
 
     /* threadManager used with threaded encoding  */
-    BlockThreadManager threadManager = null;
+    BlockThreadManager threadManager;
 
     /* threagedFrames keeps track of frames given to threadManager. We must still
      * update the configurations of them as needed. If we ever create new
      * frames(e.g, when changing stream configuration), we must create a new
      * threadManager as well.
      */
-    Frame[] threadedFrames = null;
+    Frame[] threadedFrames;
 
     /* minimum frame size seen so far. Used in the stream header */
     int minFrameSize = 0x7FFFFFFF;
@@ -123,24 +125,24 @@ public class FLACEncoder {
     volatile long samplesInStream;
 
     /* next frame number to use */
-    long nextFrameNumber = 0;
+    long nextFrameNumber;
 
     /* position of header in output stream location(needed so we can update
      * the header info(md5, minBlockSize, etc), once encoding is done
      */
-    long streamHeaderPos = 0;
+    long streamHeaderPos;
 
     /* should be set when any error has occured that invalidates results.
      * This should not be relied on currently, practice not followed well.
      */ 
-    boolean error = false;
+    boolean error;
 
     /* store used encodeRequests so we don't have to reallocate space for them*/
-    LinkedBlockingQueue<BlockEncodeRequest> usedBlockEncodeRequests = null;
+    BlockingQueue<BlockEncodeRequest> usedBlockEncodeRequests;
 
-    ArrayRecycler recycler = null;
+    ArrayRecycler recycler;
 
-    byte[] _dataMD5 = null;
+    byte[] _dataMD5;
     /**
      * Constructor which creates a new encoder object with the default settings.
      * The StreamConfiguration should be reset to match the audio used and an
@@ -536,7 +538,7 @@ public class FLACEncoder {
                 System.err.println("while: count:blocksLeft  : "+
                         count+":"+blocksLeft);
             }
-            int[] block = blockQueue.elementAt(0);
+            int[] block = blockQueue.get(0);
             //encode
             int encodedSamples = block.length/channels;//interchannel samples
             EncodedElement result = new EncodedElement(1,0);
@@ -563,7 +565,7 @@ public class FLACEncoder {
             if(count > 0 && unfinishedBlockUsed >= count) {
                 int[] block = null;
                 if(blockQueue.size() > 0) {
-                   block = blockQueue.elementAt(0);
+                   block = blockQueue.get(0);
                 }
                 else
                    block = unfinishedBlock;
@@ -642,7 +644,7 @@ public class FLACEncoder {
                 System.err.println("while: count:blocksLeft  : "+
                         count+":"+blocksLeft);
             }
-            int[] block = blockQueue.elementAt(0);
+            int[] block = blockQueue.get(0);
             //encode
             int encodedSamples = block.length/channels;//interchannel samples
             //count -= encodedSamples;
@@ -687,7 +689,7 @@ public class FLACEncoder {
             if(count > 0 && unfinishedBlockUsed >= count) {
                 int[] block = null;
                 if(blockQueue.size() > 0) {
-                   block = blockQueue.elementAt(0);
+                   block = blockQueue.get(0);
                 }
                 else
                   block = unfinishedBlock;
