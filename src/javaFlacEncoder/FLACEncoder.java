@@ -57,7 +57,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class FLACEncoder {
 
     /* For debugging, higher level equals more output */
-    int DEBUG_LEV = 0;
+	private int DEBUG_LEV = 0;
 
     /**
      * Maximum Threads to use for encoding frames(more threads than this will
@@ -66,14 +66,14 @@ public class FLACEncoder {
     private int MAX_THREADED_FRAMES = Runtime.getRuntime().availableProcessors();
 
     /* encodingConfig: Must never stay null(default supplied by constructor) */
-    EncodingConfiguration encodingConfig;
+    private EncodingConfiguration encodingConfig;
 
     /* streamConfig: Must never stay null(default supplied by constructor) */
-    StreamConfiguration streamConfig;
+    private StreamConfiguration streamConfig;
 
     /* Set true if frames are actively being encoded(can't change settings
      * while this is true) */
-    volatile Boolean isEncoding = false;
+    private volatile Boolean isEncoding = false;
 
     /* synchronize on this object when encoding or changing configurations */
     private final Object configWriteLock = new Object();
@@ -91,59 +91,59 @@ public class FLACEncoder {
     private FLACOutputStream out;
 
     /* contains FLAC_id used in the flac stream header to signify FLAC format */
-    EncodedElement FLAC_id = FLACStreamIdentifier.getIdentifier();
+    private EncodedElement FLAC_id = FLACStreamIdentifier.getIdentifier();
 
     /* Frame object used to encode when not using threads */
-    Frame frame;
+    private Frame frame;
 
     
     /* md object used to calculate MD5 hash */
-    MessageDigest md;
+    private MessageDigest md;
 
     /* threadManager used with threaded encoding  */
-    BlockThreadManager threadManager;
+    private BlockThreadManager threadManager;
 
     /* threagedFrames keeps track of frames given to threadManager. We must still
      * update the configurations of them as needed. If we ever create new
      * frames(e.g, when changing stream configuration), we must create a new
      * threadManager as well.
      */
-    Frame[] threadedFrames;
+    private Frame[] threadedFrames;
 
     /* minimum frame size seen so far. Used in the stream header */
-    int minFrameSize = 0x7FFFFFFF;
+    private int minFrameSize = 0x7FFFFFFF;
 
     /* maximum frame size seen so far. Used in stream header */
-    int maxFrameSize = 0;
+    private int maxFrameSize = 0;
 
     /* minimum block size used so far. Used in stream header */
-    int minBlockSize = 0x7FFFFFFF;
+    private int minBlockSize = 0x7FFFFFFF;
 
     /* maximum block size used so far. Used in stream header */
-    int maxBlockSize = 0;
+    private int maxBlockSize = 0;
 
     /* total number of samples encoded to output. Used in stream header */
-    volatile long samplesInStream;
+    private volatile long samplesInStream;
 
     /* next frame number to use */
-    long nextFrameNumber;
+    private long nextFrameNumber;
 
     /* position of header in output stream location(needed so we can update
      * the header info(md5, minBlockSize, etc), once encoding is done
      */
-    long streamHeaderPos;
+    private long streamHeaderPos;
 
     /* should be set when any error has occured that invalidates results.
      * This should not be relied on currently, practice not followed well.
      */ 
-    boolean error;
+    private boolean error;
 
     /* store used encodeRequests so we don't have to reallocate space for them*/
-    BlockingQueue<BlockEncodeRequest> usedBlockEncodeRequests;
+    private BlockingQueue<BlockEncodeRequest> usedBlockEncodeRequests;
 
-    ArrayRecycler recycler;
+    private ArrayRecycler recycler;
 
-    byte[] _dataMD5;
+    private byte[] _dataMD5;
     /**
      * Constructor which creates a new encoder object with the default settings.
      * The StreamConfiguration should be reset to match the audio used and an
@@ -250,7 +250,6 @@ public class FLACEncoder {
         samplesInStream = 0;
         streamHeaderPos = 0;
         nextFrameNumber = 0;
-    
     }
 
     /**
