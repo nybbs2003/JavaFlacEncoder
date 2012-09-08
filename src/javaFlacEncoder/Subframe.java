@@ -32,22 +32,13 @@ public abstract class Subframe {
 
     /** StreamConfiguration used for encoding. The same StreamConfiguration
      *  MUST be used throughout an entire FLAC stream */
-    protected StreamConfiguration sc;
+    protected final StreamConfiguration sc;
 
     /** EncodingConfiguration used for encoding. This may be altered between
      * frames, but must be the same for each subframe within that frame */
     protected EncodingConfiguration ec;
     /** Store for size of last subframe encoded(in bits). */
     protected int lastEncodedSize;
-
-    /**
-     * Constructor is private to prevenet it's use, as a subframe is not usable
-     * without first setting a StreamConfiguration(therefore, use other
-     * constructor.
-     */
-    private Subframe() {
-
-    }
 
     /**
      * Constructor. Sets StreamConfiguration to use. If the StreamConfiguration
@@ -70,7 +61,6 @@ public abstract class Subframe {
      */
     public boolean registerConfiguration(EncodingConfiguration ec) {
         this.ec = ec;
-        
         return true;
     }
 

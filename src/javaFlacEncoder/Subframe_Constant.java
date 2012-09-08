@@ -53,12 +53,12 @@ public class Subframe_Constant extends Subframe {
     @Override
     public boolean registerConfiguration(EncodingConfiguration ec) {
         super.registerConfiguration(ec);
-
         return true;
     }
 
     
-    public int encodeSamples(int[] samples, int count, int start, int skip,
+    @Override
+	public int encodeSamples(int[] samples, int count, int start, int skip,
         EncodedElement data, int offset, int bitsPerSample ) {
         if(DEBUG_LEV > 0) {
             System.err.println("Subframe_Verbatim::encodeSamples(...)");
