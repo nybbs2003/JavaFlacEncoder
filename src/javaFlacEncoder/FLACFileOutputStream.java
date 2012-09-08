@@ -142,7 +142,8 @@ public class FLACFileOutputStream implements FLACOutputStream{
         return position;
     }
 
-    public void close() throws IOException {
+    @Override
+	public void close() throws IOException {
        fos.close();
     }
 

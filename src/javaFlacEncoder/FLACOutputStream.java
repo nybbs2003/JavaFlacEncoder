@@ -19,6 +19,7 @@
 
 package javaFlacEncoder;
 
+import java.io.Closeable;
 import java.io.IOException;
 /**
  * This interface defines a location to write the output of the FLAC
@@ -47,7 +48,7 @@ import java.io.IOException;
  *
  *
  */
-public interface FLACOutputStream {
+public interface FLACOutputStream extends Closeable {
 
     /**
      * Attempt to seek to the given position.
@@ -65,7 +66,7 @@ public interface FLACOutputStream {
      * @param offset index of source array to begin reading from.
      * @param count number of bytes to write.
      * @return number of bytes written.
-     * @throws IOException IOException raised upon write error.
+     * @throws IOException raised upon write error.
      */
     public int write(byte[] data, int offset, int count) throws IOException;
 
@@ -73,7 +74,7 @@ public interface FLACOutputStream {
      * Get the number of bytes that have been written in length.
      * This takes into account seeking to different portions.
      *
-     * @return total writtne length of stream.
+     * @return total written length of stream.
      */
     public long size();
 
@@ -81,7 +82,7 @@ public interface FLACOutputStream {
      * Write a single byte to the stream.
      *
      * @param data byte to write.
-     * @throws IOException  IOException raised upon write error.
+     * @throws IOException  raised upon write error.
      */
     public void write(byte data) throws IOException;
 
