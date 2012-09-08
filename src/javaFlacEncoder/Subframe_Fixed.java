@@ -32,28 +32,28 @@ public class Subframe_Fixed extends Subframe {
     /** Subframe type supported by this implementation. */
     public static final EncodingConfiguration.SubframeType type =
             EncodingConfiguration.SubframeType.FIXED;
-    int sampleSize = 0;
-    RiceEncoder rice = null;
-    int [] bits;
-    int [] lowOrderBits;
-    long [] sum;
+    int sampleSize;
+    RiceEncoder rice;
+    int[] bits;
+    int[] lowOrderBits;
+    long[] sum;
 
-    int _error1[] = null;
-    int _error2[] = null;
-    int _error3[] = null;
-    int _error4[] = null;
-    int _lastCount = 0;
+    int _error1[];
+    int _error2[];
+    int _error3[];
+    int _error4[];
+    int _lastCount;
     int _order;
-    int[] _errors = null;
-    int _offset = 0;
-    int _start = 0;
-    int _skip = 0;
-    int _errorStep = 0;
+    int[] _errors;
+    int _offset;
+    int _start;
+    int _skip;
+    int _errorStep;
     int _totalBits;
-    int[] _samples = null;
-    int _errorOffset = 0;
-    int _errorCount = 0;
-    int _frameSampleSize = 0;
+    int[] _samples;
+    int _errorOffset;
+    int _errorCount;
+    int _frameSampleSize;
 
     private static final double LOG_2 = Math.log(2);
 
@@ -191,7 +191,7 @@ public class Subframe_Fixed extends Subframe {
                 lowOrderBits[i] = sampleSize;
             //lowOrderBits[i]++;//DOUBLE CHECK VALIDITY OF THIS. Decreases the bits needed, but "shouldn't"
             //bits[i] = (int)(Math.log(sum[i])/Math.log(10))*(count-1)+sampleSize*i;
-            bits[i] = (int)(lowOrderBits[i]*(count-i)+sampleSize*i+1);
+            bits[i] = lowOrderBits[i]*(count-i)+sampleSize*i+1;
             order = (bits[i] < bits[order]) ? i:order;
         }
 
@@ -256,7 +256,7 @@ public class Subframe_Fixed extends Subframe {
 
         //send best data to rice encoder
         int paramSize = (lowOrderBits[_order] > 14) ? 5:4;
-        boolean fiveBitParam = (paramSize < 5) ? false:true;
+        boolean fiveBitParam = !(paramSize < 5);
         RiceEncoder.beginResidual(fiveBitParam, (byte)0, dataEle);
         /*for(int i = 0; i < errorCount; i++) {
             int error = errors[errorOffset+i*errorStep];
@@ -273,7 +273,8 @@ public class Subframe_Fixed extends Subframe {
     }
 
 
-    public int encodeSamples(int[] samples, int count, int start, int skip,
+    @Override
+	public int encodeSamples(int[] samples, int count, int start, int skip,
         EncodedElement dataEle, int offset, int unencSampleSize ) {
         int encodedSamples = count;
         if(DEBUG_LEV > 0) {
@@ -367,7 +368,7 @@ public class Subframe_Fixed extends Subframe {
                 lowOrderBits[i] = sampleSize;
             lowOrderBits[i]++;//DOUBLE CHECK VALIDITY OF THIS. Decreases the bits needed, but "shouldn't"
             //bits[i] = (int)(Math.log(sum[i])/Math.log(10))*(count-1)+sampleSize*i;
-            bits[i] = (int)(lowOrderBits[i]*(count-i)+sampleSize*i+1);
+            bits[i] = lowOrderBits[i]*(count-i)+sampleSize*i+1;
             order = (bits[i] < bits[order]) ? i:order;
         }
 
@@ -402,7 +403,7 @@ public class Subframe_Fixed extends Subframe {
 
         //send best data to rice encoder
         int paramSize = (lowOrderBits[order] > 14) ? 5:4;
-        boolean fiveBitParam = (paramSize < 5) ? false:true;
+        boolean fiveBitParam = !(paramSize < 5);
         RiceEncoder.beginResidual(fiveBitParam, (byte)0, dataEle);
         /*for(int i = 0; i < errorCount; i++) {
             int error = errors[errorOffset+i*errorStep];
