@@ -214,6 +214,8 @@ public class Frame {
                 chConf = EncodingConfiguration.ChannelConfig.INDEPENDENT;
             }
             //update header to reflect change
+        } else {
+        	throw new IllegalArgumentException("Must select ChannelConfig");
         }
 
         //create header element; attach to result
@@ -315,6 +317,7 @@ public class Frame {
               chConf = determineConfigUsed(chanConfigData[i]);
            }
         }
+        assert data != null;
         
         //create header element; attach to result
         EncodedElement header = new EncodedElement(FrameHeader.MAX_HEADER_SIZE, 0);
@@ -452,7 +455,7 @@ public class Frame {
                //int fixedSize = fixedSubframe.getEncodedSize();
                lpcSubframe.encodeSamples(samples, count, start, skip,
                        offset, channelBitsPerSample);
-               int lpcSize = (int)lpcSubframe.estimatedSize();
+               int lpcSize = lpcSubframe.estimatedSize();
                if(verbatimSize < lpcSize && verbatimSize < fixedSize) {//verbatim
                    System.err.println("Running verbatim");
                    smallest = new EncodedElement(verbatimSize,offset);
@@ -711,7 +714,7 @@ public class Frame {
        double variance = 0;
        int[] samples = chan.getSamples();
        for(int i = 0; i < chan.getCount(); i++) {
-          double val = mean-(double)samples[i];
+          double val = mean-samples[i];
           variance += val*val;
        }
        return variance;
