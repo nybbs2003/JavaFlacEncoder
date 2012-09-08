@@ -17,7 +17,7 @@ public class ChannelData {
       SIDE,
       INDEPENDENT
    }
-   private int[] samples = null;
+   private int[] samples;
    private int count;
    private int sampleSize;
    private ChannelName name;
@@ -38,7 +38,7 @@ public class ChannelData {
       return setCount(count);
    }
    public int setCount(int count) {
-      this.count = (count <= samples.length) ? count:samples.length;
+      this.count = Math.min(count, samples.length);
       return this.count;
    }
    public void setChannelName(ChannelName cn) {
