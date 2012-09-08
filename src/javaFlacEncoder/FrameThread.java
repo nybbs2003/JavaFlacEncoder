@@ -18,7 +18,6 @@
  */
 
 package javaFlacEncoder;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The FrameThread class provides threading support for a Frame object, allowing
@@ -28,14 +27,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Preston Lacey
  */
 public class FrameThread implements Runnable{
-    Frame frame = null;
-    ReentrantLock runLock = null;
-    BlockThreadManager manager = null;
-    /**
-     * Constructor. Private to prevent it's use, as a Frame must be provided for
-     * this FrameThread to be of any use.
-     */
-    private FrameThread() {}
+    private final Frame frame;
+    private final BlockThreadManager manager;
 
     /**
      * Constructor. Sets the Frame object that this FrameThread will use for
@@ -46,23 +39,22 @@ public class FrameThread implements Runnable{
      * and destination.
      */
     public FrameThread(Frame f, BlockThreadManager manager) {
-        super();
         if(f == null)
-           System.err.println("Frame is null. Error.");
+           throw new IllegalArgumentException("Frame must not be null.");
         frame = f;
-        runLock = new ReentrantLock();
         this.manager = manager;
     }
 
     /**
      * Run method. This FrameThread will get a BlockEncodeRequest from the
      * BlockThreadManager, encode the block, return it to the manager, then
-     * repeat. If no BlockEncodeRequest is available, or if it recieves a
+     * repeat. If no BlockEncodeRequest is available, or if it receives a
      * request with the "frameNumber" field set to a negative value, it will
      * break the loop and end, notifying the manager it has ended.
      * 
      */
-    public void run() {
+    @Override
+	public void run() {
         boolean process = true;
         synchronized(this) {
             BlockEncodeRequest ber = manager.getWaitingRequest();
@@ -83,4 +75,5 @@ public class FrameThread implements Runnable{
             manager.notifyFrameThreadExit(this);
         }
     }
+
 }
