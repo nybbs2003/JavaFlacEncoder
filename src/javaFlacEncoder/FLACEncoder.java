@@ -562,7 +562,7 @@ public class FLACEncoder {
             //handle remaining count
             if(count > 0 && unfinishedBlockUsed >= count) {
                 int[] block = null;
-                if(blockQueue.size() > 0) {
+                if(!blockQueue.isEmpty()) {
                    block = blockQueue.get(0);
                 }
                 else
@@ -686,7 +686,7 @@ public class FLACEncoder {
             //handle remaining count
             if(count > 0 && unfinishedBlockUsed >= count) {
                 int[] block = null;
-                if(blockQueue.size() > 0) {
+                if(!blockQueue.isEmpty()) {
                    block = blockQueue.get(0);
                 }
                 else
