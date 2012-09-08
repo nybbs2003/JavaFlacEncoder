@@ -26,21 +26,7 @@ package javaFlacEncoder;
  * @author Preston Lacey
  */
 public class Subframe_LPC extends Subframe {
-    public static long totalTime = 0;
-    private class PartialResult {
-        int[] samples;
-        int start;
-        int increment;
-        int count;
-        int subframeSampleSize;
-
-        int lpcOrder;
-        int lowOrderBits;
-        int totalBits;
-        int precision;
-        int lastCount;
-    }
-    
+   
     /* Following values used frequently, let's calculate just once */
     private static final double LOGE_2 = Math.log(2);
     private static final double SQRT_2 = Math.sqrt(2);
