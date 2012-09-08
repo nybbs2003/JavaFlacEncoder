@@ -18,10 +18,13 @@
  */
 
 package javaFlacEncoder;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -51,53 +54,53 @@ import java.util.concurrent.TimeUnit;
  */
 public class BlockThreadManager implements Runnable{
     /* unassignedEncodeRequests: Requests waiting to be assigned a thread */
-    LinkedBlockingQueue<BlockEncodeRequest> unassignedEncodeRequests = null;
+    BlockingQueue<BlockEncodeRequest> unassignedEncodeRequests;
 
     /* requests that have just finished encoding, and are ready for writing.
      * Since run() polls against this for newly finished requests, requests
      * recieved out of order will be temporarily stored in finishedRequestStore
      */
-    LinkedBlockingQueue<BlockEncodeRequest> finishedEncodeRequests = null;
+    BlockingQueue<BlockEncodeRequest> finishedEncodeRequests;
 
     /* pending requests in the order that we must pass them to the FLACEncoder.
      * The top object is moved to nextTarget until it is found in
      * finishedEncodeRequests and passed to the encoder. */
-    LinkedBlockingQueue<BlockEncodeRequest> orderedEncodeRequests = null;
+    BlockingQueue<BlockEncodeRequest> orderedEncodeRequests;
 
     /* frameThreadMap: Keep track of which thread is handling which frame */
-    Map<FrameThread, Thread> frameThreadMap = null;
+    Map<FrameThread, Thread> frameThreadMap;
 
     /* Thread which watches for finished encodes and alerts FLACEncoder of their
      * finished state. This thread will die when there is no data to encode, but
      * should remain valid and unchanged so long as blocks are encoding or
      * queued. It may therefore be used to monitor/interrupt, an encode process.
      */
-    volatile Thread managerThread = null;
+    volatile Thread managerThread;
 
     /* FLACEncoder object we will send finished requests to */
-    volatile FLACEncoder encoder = null;
+    volatile FLACEncoder encoder;
 
     /* Must be false if we've been explicitly told to stop. Adding new requests
      * will reset this value to true */
     volatile boolean process = true;
 
     /* FrameThreads that are not currently assigned to a Thread */
-    Vector<FrameThread> inactiveFrameThreads = null;
+    List<FrameThread> inactiveFrameThreads;
 
     /* Lock ensures that only one FrameThread may get a new request at a time */
     private final Object getLock = new Object();
 
     /* Store finished requests that are not yet passed back to the FLACEncoder*/
-    Vector<BlockEncodeRequest> finishedRequestStore = null;
+    List<BlockEncodeRequest> finishedRequestStore;
 
     /* blockWhileQueueExceeds() waits on this lock for changes to queue size */
     private final Object outstandingCountLock = new Object();
 
     /* Next request which must be found and returned to the FLACEncoder. */
-    volatile BlockEncodeRequest nextTarget = null;
+    volatile BlockEncodeRequest nextTarget;
 
     /* Number of requests added but not yet returned to FLACEncoder */
-    volatile int outstandingCount = 0;
+    volatile int outstandingCount;
     
     /**
      * Constructor. Must supply a valid FLACEncoder object which will be alerted
@@ -110,9 +113,8 @@ public class BlockThreadManager implements Runnable{
         finishedEncodeRequests = new LinkedBlockingQueue<BlockEncodeRequest>();
         orderedEncodeRequests = new LinkedBlockingQueue<BlockEncodeRequest>();
         frameThreadMap = Collections.synchronizedMap(new HashMap<FrameThread, Thread>());
-        inactiveFrameThreads = new Vector<FrameThread>();
-        finishedRequestStore  = new Vector<BlockEncodeRequest>();
-        managerThread = null;
+        inactiveFrameThreads = Collections.synchronizedList(new ArrayList<FrameThread>());
+        finishedRequestStore  = Collections.synchronizedList(new ArrayList<BlockEncodeRequest>());
     }
 
     /**
@@ -140,7 +142,7 @@ public class BlockThreadManager implements Runnable{
                   try {
                      outstandingCountLock.wait();
                   }catch(InterruptedException e) {
-                     
+                     // XXX Ignored
                   }
                }
                else
@@ -220,7 +222,7 @@ public class BlockThreadManager implements Runnable{
                 }
                 loop = false;
              }catch(InterruptedException e) {
-
+            	 // XXX Ignored
              }
          }
       }
@@ -265,7 +267,8 @@ public class BlockThreadManager implements Runnable{
      * FLACEncoder for finalizing. If no request is finished, or currently
      * assigned to an encoding thread, will timeout after 0.5 seconds and end.
      */
-    public void run () {
+    @Override
+	public void run() {
        //wait for finished item
        //send finished item to encoder
        //loop to top
@@ -309,7 +312,7 @@ public class BlockThreadManager implements Runnable{
 
             }
          }catch(InterruptedException e) {
-
+        	 // XXX Ignored
          }
        }
        synchronized(this) {
