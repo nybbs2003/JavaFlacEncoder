@@ -33,8 +33,6 @@ public class Subframe_Verbatim extends Subframe {
     public static final EncodingConfiguration.SubframeType type =
             EncodingConfiguration.SubframeType.VERBATIM;
 
-    //int sampleSize = 0;
-
     /**
      * Constructor. Sets StreamConfiguration to use. If the StreamConfiguration
      * must later be changed, a new Subframe object must be created as well.
@@ -42,7 +40,6 @@ public class Subframe_Verbatim extends Subframe {
      */
     Subframe_Verbatim(StreamConfiguration sc) {
         super(sc);
-        //sampleSize = sc.getBitsPerSample();
     }
 
     /**
@@ -53,7 +50,6 @@ public class Subframe_Verbatim extends Subframe {
     @Override
     public boolean registerConfiguration(EncodingConfiguration ec) {
         super.registerConfiguration(ec);
-
         return true;
     }
 
@@ -62,12 +58,12 @@ public class Subframe_Verbatim extends Subframe {
         return estimatedSize;
     }
     
-    public int encodeSamples(int[] samples, int count, int start, int skip,
+    @Override
+	public int encodeSamples(int[] samples, int count, int start, int skip,
         EncodedElement data, int offset, int bitsPerSample ) {
         if(DEBUG_LEV > 0) {
             System.err.println("Subframe_Verbatim::encodeSamples(...)");
         }
-        //int sampleSize = bitsPerSample;
         int encodedSamples = count;
         int bits = bitsPerSample*count+offset+1*8;
         int bytesNeeded = bits/8;
