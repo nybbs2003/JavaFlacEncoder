@@ -35,7 +35,7 @@ public class ArrayRecycler {
     BlockingQueue<int[]> usedIntArrays;
 
     ArrayRecycler() {
-        usedIntArrays = new LinkedBlockingQueue<int[]>();
+        usedIntArrays = new LinkedBlockingQueue<int[]>(32);
     }
 
     public void add(int[] array) {
