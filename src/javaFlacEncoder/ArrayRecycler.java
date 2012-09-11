@@ -29,10 +29,10 @@ import java.util.concurrent.LinkedBlockingQueue;
  * end their life, we can then add it to the same resource store.
  * @author Preston Lacey
  */
-public class ArrayRecycler {
-	BlockingQueue<int[]> usedIntArrays;
+final class ArrayRecycler {
+	private final BlockingQueue<int[]> usedIntArrays;
 
-	ArrayRecycler() {
+	public ArrayRecycler() {
 		usedIntArrays = new LinkedBlockingQueue<int[]>(32);
 	}
 
@@ -40,12 +40,12 @@ public class ArrayRecycler {
 		usedIntArrays.offer(array);
 	}
 
-	// TODO: Doesn't this grow forever? If arrays too small, never get removed.
+	// TODO: If arrays too small, never get removed.
 
 	/**
 	 * @param size
 	 *            the minimum size the array must be
-	 * @return
+	 * @return an array at least as large as requested
 	 */
 	public int[] getArray(int size) {
 		final int[] found = usedIntArrays.poll();
