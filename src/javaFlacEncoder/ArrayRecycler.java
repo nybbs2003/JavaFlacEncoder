@@ -23,45 +23,40 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * The purpose of this class is to provide a source for reusable int arrays.
- * When using large numbers of arrays in succession, it is inefficient to
- * constantly go in an allocate/free loop. This way, we may pass a single,
- * thread-safe recycler to all objects. No matter where the arrays end their
- * life, we can then add it to the same resource store.
- *
+ * The purpose of this class is to provide a source for reusable int arrays. When using large
+ * numbers of arrays in succession, it is inefficient to constantly go in an allocate/free loop.
+ * This way, we may pass a single, thread-safe recycler to all objects. No matter where the arrays
+ * end their life, we can then add it to the same resource store.
  * @author Preston Lacey
  */
 public class ArrayRecycler {
-    BlockingQueue<int[]> usedIntArrays;
+	BlockingQueue<int[]> usedIntArrays;
 
-    ArrayRecycler() {
-        usedIntArrays = new LinkedBlockingQueue<int[]>(32);
-    }
+	ArrayRecycler() {
+		usedIntArrays = new LinkedBlockingQueue<int[]>(32);
+	}
 
-    public void add(int[] array) {
-    	usedIntArrays.offer(array);
-    }
+	public void add(int[] array) {
+		usedIntArrays.offer(array);
+	}
 
-    // TODO: Doesn't this grow forever? If arrays too small, never get removed.
+	// TODO: Doesn't this grow forever? If arrays too small, never get removed.
 
-    /**
-     *
-     * @param size the minimum size the array must be
-     * @return
-     */
-    public int[] getArray(int size) {
-       final int[] found = usedIntArrays.poll();
-       int[] result = found;
-       if(found == null) {
-          result = new int[size];
-          //System.err.println("Created new int array from null");
-       }
-       else if(found.length < size) {
-          usedIntArrays.offer(found);
-          result = new int[size];
-          //System.err.println("created new int array from bad size");
-       }
-       return result;
-    }
+	/**
+	 * @param size
+	 *            the minimum size the array must be
+	 * @return
+	 */
+	public int[] getArray(int size) {
+		final int[] found = usedIntArrays.poll();
+		int[] result = found;
+		if (found == null) {
+			result = new int[size];
+		} else if (found.length < size) {
+			usedIntArrays.offer(found);
+			result = new int[size];
+		}
+		return result;
+	}
 
 }

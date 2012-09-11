@@ -20,60 +20,55 @@
 package javaFlacEncoder;
 
 /**
- * The FrameThread class provides threading support for a Frame object, allowing
- * multi-threaded encodings of FLAC frames. It's job is to repeatedly get a
- * BlockEncodeRequest from a BlockThreadManager, and encode it.
- *
+ * The FrameThread class provides threading support for a Frame object, allowing multi-threaded
+ * encodings of FLAC frames. It's job is to repeatedly get a BlockEncodeRequest from a
+ * BlockThreadManager, and encode it.
  * @author Preston Lacey
  */
-public class FrameThread implements Runnable{
-    private final Frame frame;
-    private final BlockThreadManager manager;
+public class FrameThread implements Runnable {
+	private final Frame frame;
+	private final BlockThreadManager manager;
 
-    /**
-     * Constructor. Sets the Frame object that this FrameThread will use for
-     * encodings.
-     *
-     * @param f Frame object to use for encoding.
-     * @param manager BlockThreadManager to use as the BlockEncodeRequest source
-     * and destination.
-     */
-    public FrameThread(Frame f, BlockThreadManager manager) {
-        if(f == null)
-           throw new IllegalArgumentException("Frame must not be null.");
-        frame = f;
-        this.manager = manager;
-    }
+	/**
+	 * Constructor. Sets the Frame object that this FrameThread will use for encodings.
+	 * @param f
+	 *            Frame object to use for encoding.
+	 * @param manager
+	 *            BlockThreadManager to use as the BlockEncodeRequest source and destination.
+	 */
+	public FrameThread(Frame f, BlockThreadManager manager) {
+		if (f == null)
+			throw new IllegalArgumentException("Frame must not be null.");
+		frame = f;
+		this.manager = manager;
+	}
 
-    /**
-     * Run method. This FrameThread will get a BlockEncodeRequest from the
-     * BlockThreadManager, encode the block, return it to the manager, then
-     * repeat. If no BlockEncodeRequest is available, or if it receives a
-     * request with the "frameNumber" field set to a negative value, it will
-     * break the loop and end, notifying the manager it has ended.
-     * 
-     */
-    @Override
+	/**
+	 * Run method. This FrameThread will get a BlockEncodeRequest from the BlockThreadManager,
+	 * encode the block, return it to the manager, then repeat. If no BlockEncodeRequest is
+	 * available, or if it receives a request with the "frameNumber" field set to a negative value,
+	 * it will break the loop and end, notifying the manager it has ended.
+	 */
+	@Override
 	public void run() {
-        boolean process = true;
-        synchronized(this) {
-            BlockEncodeRequest ber = manager.getWaitingRequest();
-            if(ber != null && ber.frameNumber < 0)
-               ber = null;
-            while(ber != null && process) {
-               if(ber.frameNumber < 0) {
-                  process = false;
-               }
-               else {//get available BlockEncodeRequest from manager
-                  ber.encodedSamples = frame.encodeSamples(ber.samples, ber.count,
-                          ber.start, ber.skip, ber.result, ber.frameNumber);
-                  ber.valid = true;
-                  manager.returnFinishedRequest(ber);
-                  ber = manager.getWaitingRequest();
-               }
-            }
-            manager.notifyFrameThreadExit(this);
-        }
-    }
+		boolean process = true;
+		synchronized (this) {
+			BlockEncodeRequest ber = manager.getWaitingRequest();
+			if (ber != null && ber.frameNumber < 0)
+				ber = null;
+			while (ber != null && process) {
+				if (ber.frameNumber < 0) {
+					process = false;
+				} else {// get available BlockEncodeRequest from manager
+					ber.encodedSamples = frame.encodeSamples(ber.samples, ber.count, ber.start,
+							ber.skip, ber.result, ber.frameNumber);
+					ber.valid = true;
+					manager.returnFinishedRequest(ber);
+					ber = manager.getWaitingRequest();
+				}
+			}
+			manager.notifyFrameThreadExit(this);
+		}
+	}
 
 }
