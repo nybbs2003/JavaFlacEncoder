@@ -39,7 +39,7 @@ public class ArrayRecycler {
     }
 
     public void add(int[] array) {
-        usedIntArrays.add(array);
+    	usedIntArrays.offer(array);
     }
 
     // TODO: Doesn't this grow forever? If arrays too small, never get removed.
