@@ -287,4 +287,14 @@ public class StreamConfiguration implements Cloneable {
 		}
 		return result;
 	}
+
+	@Override
+	protected StreamConfiguration clone() {
+		try {
+			return (StreamConfiguration) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError(e);
+		}
+	}
+
 }

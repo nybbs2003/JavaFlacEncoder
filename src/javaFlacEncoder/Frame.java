@@ -86,7 +86,6 @@ public class Frame {
 		this.sc = sc;
 		frameHeader = new FrameHeader();
 		crc16 = new CRC16();
-		ec = null;
 		verbatimSubframe = new Subframe_Verbatim(sc);
 		fixedSubframe = new Subframe_Fixed(sc);
 		lpcSubframe = new Subframe_LPC(sc);

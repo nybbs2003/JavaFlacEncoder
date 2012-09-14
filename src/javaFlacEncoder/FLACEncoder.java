@@ -204,10 +204,11 @@ public class FLACEncoder {
 	 * @return true if the configuration was altered; false if the configuration cannot be
 	 *         altered(such as if another thread is currently encoding).
 	 */
-	public boolean setStreamConfiguration(StreamConfiguration sc) {
+	public boolean setStreamConfiguration(StreamConfiguration newsc) {
 		boolean changed = false;
-		if (!isEncoding && sc != null) {
+		if (!isEncoding && newsc != null) {
 			synchronized (configWriteLock) {
+				StreamConfiguration sc = new StreamConfiguration(newsc);
 				streamConfig = sc;
 				frame = new Frame(sc);
 				threadManager = new BlockThreadManager(this);
