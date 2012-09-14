@@ -179,10 +179,11 @@ public class FLACEncoder {
 	 * @return true if the configuration was altered; false if the configuration cannot be
 	 *         altered(such as if another thread is currently encoding).
 	 */
-	public boolean setEncodingConfiguration(EncodingConfiguration ec) {
+	public boolean setEncodingConfiguration(EncodingConfiguration newec) {
 		boolean changed = false;
-		if (!isEncoding && ec != null) {
+		if (!isEncoding && newec != null) {
 			synchronized (configWriteLock) {
+				EncodingConfiguration ec = new EncodingConfiguration(newec);
 				encodingConfig = ec;
 				frame.registerConfiguration(ec);
 				for (int i = 0; i < MAX_THREADED_FRAMES; i++)
