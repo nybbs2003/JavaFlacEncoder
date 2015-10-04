@@ -20,29 +20,35 @@
 package javaFlacEncoder;
 
 /**
- * Handles taking a set of audio samples, and splitting it into the proper subframes, and returning
- * the resulting encoded data. This object will do any calculations needed for preparing the
- * “channel configuration” used in encoding, such as mid-side or left-right(based upon the given
- * configuration).
+ * Handles taking a set of audio samples, and splitting it into the proper
+ * subframes, and returning the resulting encoded data. This object will do any
+ * calculations needed for preparing the “channel configuration” used in
+ * encoding, such as mid-side or left-right(based upon the given configuration).
+ * 
  * @author Preston Lacey
  */
 public class Frame {
 
 	/**
-	 * For debugging: Higher level equals more output(generally in increments of 10
+	 * For debugging: Higher level equals more output(generally in increments of
+	 * 10
 	 */
 	public static int DEBUG_LEV = 0;
 
 	/* track the size of the last encoded frame */
 	private int lastEncodeSize;
-	/* Current EncodingConfiguration used. This must NOT be changed while a Frame is being encoded,
-	 * but may be changed between frames */
+	/*
+	 * Current EncodingConfiguration used. This must NOT be changed while a
+	 * Frame is being encoded, but may be changed between frames
+	 */
 	EncodingConfiguration ec;
 
 	/* Current stream configuration */
 	StreamConfiguration sc;
-	/* Number of channels currently configured. This comes from setting the StreamConfiguration(and
-	 * so is slightly redundant) */
+	/*
+	 * Number of channels currently configured. This comes from setting the
+	 * StreamConfiguration(and so is slightly redundant)
+	 */
 	int channels;
 	/* bits per sample as set by the StreamConfiguration...this is redundant */
 	int bitsPerSample;
@@ -68,15 +74,17 @@ public class Frame {
 	long[] r_sums = new long[4];
 
 	/**
-	 * Constructor. Private to prevent it's use(if a StreamConfiguration isn't set, then most
-	 * methods will fail in an undefined fashion.
+	 * Constructor. Private to prevent it's use(if a StreamConfiguration isn't
+	 * set, then most methods will fail in an undefined fashion.
 	 */
 	private Frame() {
 	}
 
 	/**
-	 * Constructor. Sets the StreamConfiguration to use at creation of object. If the
-	 * StreamConfiguration needs to be changed, you *MUST* create a new Frame object.
+	 * Constructor. Sets the StreamConfiguration to use at creation of object.
+	 * If the StreamConfiguration needs to be changed, you *MUST* create a new
+	 * Frame object.
+	 * 
 	 * @param sc
 	 *            StreamConfiguration to use for encoding with this frame.
 	 */
@@ -96,12 +104,15 @@ public class Frame {
 	}
 
 	/**
-	 * This method is used to set the encoding configuration. This configuration can be altered
-	 * throughout the stream, but cannot be called while an encoding process is active.
+	 * This method is used to set the encoding configuration. This configuration
+	 * can be altered throughout the stream, but cannot be called while an
+	 * encoding process is active.
+	 * 
 	 * @param ec
 	 *            encoding configuration to use.
-	 * @return <code>true</code> if configuration was changed. <code>false</code> otherwise(i.e, and
-	 *         encoding process was active at the time of change)
+	 * @return <code>true</code> if configuration was changed.
+	 *         <code>false</code> otherwise(i.e, and encoding process was active
+	 *         at the time of change)
 	 */
 	public boolean registerConfiguration(EncodingConfiguration ec) {
 		boolean changed = false;
@@ -117,41 +128,44 @@ public class Frame {
 	}
 
 	/**
-	 * Encodes samples into the appropriate compressed format, saving the result in the given “data”
-	 * EncodedElement list. Encodes 'count' samples, from index 'start', to index 'start' times
-	 * 'skip', where “skip” is the format that samples may be packed in an array. For example,
-	 * 'samples' may include both left and right samples of a stereo stream. Therefore, “skip” would
-	 * equal 2, resulting in the valid indices for the first channel being even, and second being
-	 * odd.
+	 * Encodes samples into the appropriate compressed format, saving the result
+	 * in the given “data” EncodedElement list. Encodes 'count' samples, from
+	 * index 'start', to index 'start' times 'skip', where “skip” is the format
+	 * that samples may be packed in an array. For example, 'samples' may
+	 * include both left and right samples of a stereo stream. Therefore, “skip”
+	 * would equal 2, resulting in the valid indices for the first channel being
+	 * even, and second being odd.
+	 * 
 	 * @param samples
-	 *            the audio samples to encode. This array may contain samples for multiple channels,
-	 *            interleaved; only one of these channels is encoded by a subframe.
+	 *            the audio samples to encode. This array may contain samples
+	 *            for multiple channels, interleaved; only one of these channels
+	 *            is encoded by a subframe.
 	 * @param count
 	 *            the number of samples to encode.
 	 * @param start
 	 *            the index to start at in the array.
 	 * @param skip
-	 *            the number of indices to skip between successive samples (for use when channels
-	 *            are interleaved in the given array).
+	 *            the number of indices to skip between successive samples (for
+	 *            use when channels are interleaved in the given array).
 	 * @param data
-	 *            the EncodedElement to attach encoded data to. Data in Encoded Element given is not
-	 *            altered. New data is attached starting with “data.getNext()”. If “data” already
-	 *            has a “next” set, it will be lost!
-	 * @return int Returns the number of inter-channel samples encoded; i.e, if block-size is 4000,
-	 *         and it is stereo audio. There are 8000 samples in this block, but the return value is
-	 *         “4000”. There is always an equal number of samples encoded from each channel. This
-	 *         exists primarily to support dynamic block sizes in the future; Pre-condition: none
-	 *         Post-condition: Argument 'data' is the head of a list containing the resulting,
-	 *         encoded data stream.
+	 *            the EncodedElement to attach encoded data to. Data in Encoded
+	 *            Element given is not altered. New data is attached starting
+	 *            with “data.getNext()”. If “data” already has a “next” set, it
+	 *            will be lost!
+	 * @return int Returns the number of inter-channel samples encoded; i.e, if
+	 *         block-size is 4000, and it is stereo audio. There are 8000
+	 *         samples in this block, but the return value is “4000”. There is
+	 *         always an equal number of samples encoded from each channel. This
+	 *         exists primarily to support dynamic block sizes in the future;
+	 *         Pre-condition: none Post-condition: Argument 'data' is the head
+	 *         of a list containing the resulting, encoded data stream.
 	 */
-	public int encodeSamples_OLD(int[] samples, int count, int start, int skip,
-			EncodedElement result, long frameNumber) {
+	public int encodeSamples_OLD(int[] samples, int count, int start, int skip, EncodedElement result, long frameNumber) {
 		// System.err.println("FRAME::encodeSamples: frame#:"+frameNumber);
 		if (DEBUG_LEV > 0) {
 			System.err.println("FRAME::encodeSamples(...)");
 			if (DEBUG_LEV > 10) {
-				System.err.println("\tsamples.length:" + samples.length + ":count:" + count
-						+ ":start:" + start + ":skip:" + skip + ":frameNumber:" + frameNumber);
+				System.err.println("\tsamples.length:" + samples.length + ":count:" + count + ":start:" + start + ":skip:" + skip + ":frameNumber:" + frameNumber);
 			}
 		}
 		int samplesEncoded = count;
@@ -206,8 +220,7 @@ public class Frame {
 		}
 
 		// create header element; attach to result
-		EncodedElement header = frameHeader.createHeader(true, count, sc.getSampleRate(), chConf,
-				sc.getBitsPerSample(), frameNumber, channels, new EncodedElement(128, 0));
+		EncodedElement header = frameHeader.createHeader(true, count, sc.getSampleRate(), chConf, sc.getBitsPerSample(), frameNumber, channels, new EncodedElement(128, 0));
 		result.setNext(header);
 		// attach data to header
 		header.attachEnd(data);
@@ -248,48 +261,50 @@ public class Frame {
 	}
 
 	/**
-	 * Encodes samples into the appropriate compressed format, saving the result in the given “data”
-	 * EncodedElement list. Encodes 'count' samples, from index 'start', to index 'start' times
-	 * 'skip', where “skip” is the format that samples may be packed in an array. For example,
-	 * 'samples' may include both left and right samples of a stereo stream. Therefore, “skip” would
-	 * equal 2, resulting in the valid indices for the first channel being even, and second being
-	 * odd.
+	 * Encodes samples into the appropriate compressed format, saving the result
+	 * in the given “data” EncodedElement list. Encodes 'count' samples, from
+	 * index 'start', to index 'start' times 'skip', where “skip” is the format
+	 * that samples may be packed in an array. For example, 'samples' may
+	 * include both left and right samples of a stereo stream. Therefore, “skip”
+	 * would equal 2, resulting in the valid indices for the first channel being
+	 * even, and second being odd.
+	 * 
 	 * @param samples
-	 *            the audio samples to encode. This array may contain samples for multiple channels,
-	 *            interleaved; only one of these channels is encoded by a subframe.
+	 *            the audio samples to encode. This array may contain samples
+	 *            for multiple channels, interleaved; only one of these channels
+	 *            is encoded by a subframe.
 	 * @param count
 	 *            the number of samples to encode.
 	 * @param start
 	 *            the index to start at in the array.
 	 * @param skip
-	 *            the number of indices to skip between successive samples (for use when channels
-	 *            are interleaved in the given array).
+	 *            the number of indices to skip between successive samples (for
+	 *            use when channels are interleaved in the given array).
 	 * @param data
-	 *            the EncodedElement to attach encoded data to. Data in Encoded Element given is not
-	 *            altered. New data is attached starting with “data.getNext()”. If “data” already
-	 *            has a “next” set, it will be lost!
-	 * @return int Returns the number of inter-channel samples encoded; i.e, if block-size is 4000,
-	 *         and it is stereo audio. There are 8000 samples in this block, but the return value is
-	 *         “4000”. There is always an equal number of samples encoded from each channel. This
-	 *         exists primarily to support dynamic block sizes in the future; Pre-condition: none
-	 *         Post-condition: Argument 'data' is the head of a list containing the resulting,
-	 *         encoded data stream.
+	 *            the EncodedElement to attach encoded data to. Data in Encoded
+	 *            Element given is not altered. New data is attached starting
+	 *            with “data.getNext()”. If “data” already has a “next” set, it
+	 *            will be lost!
+	 * @return int Returns the number of inter-channel samples encoded; i.e, if
+	 *         block-size is 4000, and it is stereo audio. There are 8000
+	 *         samples in this block, but the return value is “4000”. There is
+	 *         always an equal number of samples encoded from each channel. This
+	 *         exists primarily to support dynamic block sizes in the future;
+	 *         Pre-condition: none Post-condition: Argument 'data' is the head
+	 *         of a list containing the resulting, encoded data stream.
 	 */
-	public int encodeSamples(int[] samples, int count, int start, int skip, EncodedElement result,
-			long frameNumber) {
+	public int encodeSamples(int[] samples, int count, int start, int skip, EncodedElement result, long frameNumber) {
 		// System.err.println("FRAME::encodeSamples: frame#:"+frameNumber);
 		if (DEBUG_LEV > 0) {
 			System.err.println("FRAME::encodeSamplesNew(...)");
 			if (DEBUG_LEV > 10) {
-				System.err.println("\tsamples.length:" + samples.length + ":count:" + count
-						+ ":start:" + start + ":skip:" + skip + ":frameNumber:" + frameNumber);
+				System.err.println("\tsamples.length:" + samples.length + ":count:" + count + ":start:" + start + ":skip:" + skip + ":frameNumber:" + frameNumber);
 			}
 		}
 		int samplesEncoded = count;
 		testConstant = true;
 		EncodedElement data = null;
-		ChannelData[][] chanConfigData = getChannelsToEncode(samples, count, sc.getChannelCount(),
-				sc.getBitsPerSample());
+		ChannelData[][] chanConfigData = getChannelsToEncode(samples, count, sc.getChannelCount(), sc.getBitsPerSample());
 		int size = Integer.MAX_VALUE;
 		EncodingConfiguration.ChannelConfig chConf = EncodingConfiguration.ChannelConfig.INDEPENDENT;
 		for (int i = 0; i < chanConfigData.length; i++) {
@@ -305,8 +320,7 @@ public class Frame {
 
 		// create header element; attach to result
 		EncodedElement header = new EncodedElement(FrameHeader.MAX_HEADER_SIZE, 0);
-		frameHeader.createHeader(true, count, sc.getSampleRate(), chConf, sc.getBitsPerSample(),
-				frameNumber, channels, header);
+		frameHeader.createHeader(true, count, sc.getSampleRate(), chConf, sc.getBitsPerSample(), frameNumber, channels, header);
 		// result.setNext(header);
 		result.attachEnd(header);
 		// attach data to header
@@ -336,8 +350,7 @@ public class Frame {
 		int count = channels[0].getCount();
 		for (int i = 0; i < channels.length; i++) {
 			EncodedElement temp = new EncodedElement();
-			channelLength = encodeChannel(channels[i].getSamples(), count, 0, 0, offset, temp,
-					channels[i].getSampleSize());
+			channelLength = encodeChannel(channels[i].getSamples(), count, 0, 0, offset, temp, channels[i].getSampleSize());
 			totalSize += channelLength;
 			result.attachEnd(temp);
 			offset = totalSize % 8;
@@ -346,8 +359,7 @@ public class Frame {
 		return totalSize;
 	}
 
-	int encodeIndependent(int[] samples, int count, int start, int skip, EncodedElement result,
-			int offset) {
+	int encodeIndependent(int[] samples, int count, int start, int skip, EncodedElement result, int offset) {
 		if (DEBUG_LEV > 0) {
 			System.err.println("Frame::encodeIndependent : Begin");
 			System.err.println("start:skip:offset::" + start + ":" + skip + ":" + offset);
@@ -371,8 +383,7 @@ public class Frame {
 				channelBitsPerSample++;
 			subframes[i] = new EncodedElement();
 			// System.err.println("Frame::subframe begin offset: "+offset);
-			channelLength = encodeChannel(samples, count, start + i, skip, offset, subframes[i],
-					channelBitsPerSample);
+			channelLength = encodeChannel(samples, count, start + i, skip, offset, subframes[i], channelBitsPerSample);
 			totalSize += channelLength;
 			offset = (inputOffset + totalSize) % 8;
 		}
@@ -389,8 +400,7 @@ public class Frame {
 		return totalSize;
 	}
 
-	int encodeChannel(int[] samples, int count, int start, int skip, int offset,
-			EncodedElement data, int channelBitsPerSample) {
+	int encodeChannel(int[] samples, int count, int start, int skip, int offset, EncodedElement data, int channelBitsPerSample) {
 		if (DEBUG_LEV > 0)
 			System.err.println("Frame::encodeChannel : Begin");
 		int size = 0;
@@ -400,17 +410,14 @@ public class Frame {
 			// use verbatim subframe to encode channel.
 			// note size.
 			// System.err.println("Using verbatim with count: "+count);
-			verbatimSubframe.encodeSamples(samples, count, start, skip, data, offset,
-					channelBitsPerSample);
+			verbatimSubframe.encodeSamples(samples, count, start, skip, data, offset, channelBitsPerSample);
 			size = verbatimSubframe.getEncodedSize();
 		} else if (subframeType == EncodingConfiguration.SubframeType.FIXED) {
 			// System.err.println("channelBitsPerSample: "+channelBitsPerSample);
-			fixedSubframe.encodeSamples(samples, count, start, skip, data, offset,
-					channelBitsPerSample);
+			fixedSubframe.encodeSamples(samples, count, start, skip, data, offset, channelBitsPerSample);
 			size = fixedSubframe.getEncodedSize();
 		} else if (subframeType == EncodingConfiguration.SubframeType.LPC) {
-			lpcSubframe.encodeSamples(samples, count, start, skip, data, offset,
-					channelBitsPerSample);
+			lpcSubframe.encodeSamples(samples, count, start, skip, data, offset, channelBitsPerSample);
 			size = lpcSubframe.getEncodedSize();
 		} else if (subframeType == EncodingConfiguration.SubframeType.EXHAUSTIVE) {
 			int conCount = -1;
@@ -418,8 +425,7 @@ public class Frame {
 			EncodedElement smallest = null;
 			if (testConstant) {
 				// System.err.println("Testing constant");
-				conCount = constantSubframe.encodeSamples(samples, count, start, skip, constantEle,
-						offset, channelBitsPerSample);
+				conCount = constantSubframe.encodeSamples(samples, count, start, skip, constantEle, offset, channelBitsPerSample);
 			}
 			// System.err.println("conCount: "+conCount);
 			if (conCount == count) {
@@ -429,31 +435,27 @@ public class Frame {
 			} else {
 				// calculate verbatim size:
 				int verbatimSize = verbatimSubframe.estimateSize(count, channelBitsPerSample);
-				fixedSubframe.encodeSamples(samples, count, start, skip, offset,
-						channelBitsPerSample);
+				fixedSubframe.encodeSamples(samples, count, start, skip, offset, channelBitsPerSample);
 				int fixedSize = fixedSubframe.estimatedSize();
 				// int fixedSize = fixedSubframe.getEncodedSize();
-				lpcSubframe
-						.encodeSamples(samples, count, start, skip, offset, channelBitsPerSample);
+				lpcSubframe.encodeSamples(samples, count, start, skip, offset, channelBitsPerSample);
 				int lpcSize = lpcSubframe.estimatedSize();
 				if (verbatimSize < lpcSize && verbatimSize < fixedSize) {// verbatim
-					System.err.println("Running verbatim");
+//					System.err.println("Running verbatim");
 					smallest = new EncodedElement(verbatimSize, offset);
-					verbatimSubframe.encodeSamples(samples, count, start, skip, smallest, offset,
-							channelBitsPerSample);
+					verbatimSubframe.encodeSamples(samples, count, start, skip, smallest, offset, channelBitsPerSample);
 					size = verbatimSubframe.getEncodedSize();
 				} else if (lpcSize < fixedSize && lpcSize < verbatimSize) {// lpc
 					// size = lpcSize;
 					smallest = lpcSubframe.getData();
 					size = lpcSubframe.getEncodedSize();
-					if (size > lpcSize)
-						System.err.println("Lpc size wrong: exp:real : " + lpcSize + ":" + size);
+//					if (size > lpcSize)
+//						System.err.println("Lpc size wrong: exp:real : " + lpcSize + ":" + size);
 				} else {// fixed
 					smallest = fixedSubframe.getData();
 					size = fixedSubframe.getEncodedSize();
-					if (size > fixedSize)
-						System.err
-								.println("Fixed size wrong: exp:real : " + fixedSize + ":" + size);
+//					if (size > fixedSize)
+//						System.err.println("Fixed size wrong: exp:real : " + fixedSize + ":" + size);
 				}
 			}
 			data.data = smallest.data;
@@ -462,17 +464,19 @@ public class Frame {
 			data.offset = smallest.offset;
 		}
 		// return total bit size of encoded subframe.
-		if (DEBUG_LEV > 0)
-			System.err.println("Frame::encodeChannel : End");
+//		if (DEBUG_LEV > 0)
+//			System.err.println("Frame::encodeChannel : End");
 		return size;
 	}
 
 	/**
-	 * Returns the total number of valid bits used in the last encoding(i.e, the number of
-	 * compressed bits used). This is here for convenience, as the calling object may also loop
-	 * through the resulting EncodingElement from the encoding process and sum the valid bits.
-	 * @return an integer with value of the number of bits used in last encoding. Pre-condition: none
-	 *         Post-condition: none
+	 * Returns the total number of valid bits used in the last encoding(i.e, the
+	 * number of compressed bits used). This is here for convenience, as the
+	 * calling object may also loop through the resulting EncodingElement from
+	 * the encoding process and sum the valid bits.
+	 * 
+	 * @return an integer with value of the number of bits used in last
+	 *         encoding. Pre-condition: none Post-condition: none
 	 */
 	public int getEncodedSize() {
 		if (DEBUG_LEV > 0)
@@ -480,8 +484,7 @@ public class Frame {
 		return lastEncodeSize;
 	}
 
-	private int encodeRightSide(int[] samples, int count, int start, int skip, EncodedElement data,
-			int offset) {
+	private int encodeRightSide(int[] samples, int count, int start, int skip, EncodedElement data, int offset) {
 		int[] rightSide = new int[samples.length];
 		for (int i = 0; i < count; i++) {
 			rightSide[2 * i] = samples[2 * i] - samples[2 * i + 1];
@@ -490,8 +493,7 @@ public class Frame {
 		return encodeIndependent(rightSide, count, start, skip, data, offset);
 	}
 
-	private int encodeLeftSide(int[] samples, int count, int start, int skip, EncodedElement data,
-			int offset) {
+	private int encodeLeftSide(int[] samples, int count, int start, int skip, EncodedElement data, int offset) {
 		int[] leftSide = new int[samples.length];
 		for (int i = 0; i < count; i++) {
 			leftSide[2 * i] = samples[2 * i];
@@ -500,8 +502,7 @@ public class Frame {
 		return encodeIndependent(leftSide, count, start, skip, data, offset);
 	}
 
-	private static void getIndependentChannels(int[] samples, int count, ChannelData[] channels,
-			int sampleSize) {
+	private static void getIndependentChannels(int[] samples, int count, ChannelData[] channels, int sampleSize) {
 		int channelCount = channels.length;
 		int[][] independentSamples = new int[channels.length][];
 		for (int i = 0; i < channelCount; i++) {
@@ -511,11 +512,9 @@ public class Frame {
 			if (independentSamples[i] == null || independentSamples[i].length < count)
 				independentSamples[i] = new int[count];
 			if (temp != null)
-				channels[i].setData(independentSamples[i], count, sampleSize,
-						ChannelData.ChannelName.INDEPENDENT);
+				channels[i].setData(independentSamples[i], count, sampleSize, ChannelData.ChannelName.INDEPENDENT);
 			else
-				channels[i] = new ChannelData(independentSamples[i], count, sampleSize,
-						ChannelData.ChannelName.INDEPENDENT);
+				channels[i] = new ChannelData(independentSamples[i], count, sampleSize, ChannelData.ChannelName.INDEPENDENT);
 		}
 
 		for (int i = 0; i < count; i++) {
@@ -525,8 +524,7 @@ public class Frame {
 		}
 	}
 
-	private static void getMidSideChannels(int[] samples, int count, ChannelData[] channels,
-			int sampleSize) {
+	private static void getMidSideChannels(int[] samples, int count, ChannelData[] channels, int sampleSize) {
 		ChannelData midData = channels[0];
 		ChannelData sideData = channels[1];
 		int[] midSamples = null;
@@ -543,13 +541,11 @@ public class Frame {
 		if (midData != null)
 			channels[0].setData(midSamples, count, sampleSize, ChannelData.ChannelName.MID);
 		else
-			channels[0] = new ChannelData(midSamples, count, sampleSize,
-					ChannelData.ChannelName.MID);
+			channels[0] = new ChannelData(midSamples, count, sampleSize, ChannelData.ChannelName.MID);
 		if (sideData != null)
 			channels[1].setData(sideSamples, count, sampleSize + 1, ChannelData.ChannelName.SIDE);
 		else
-			channels[1] = new ChannelData(sideSamples, count, sampleSize + 1,
-					ChannelData.ChannelName.SIDE);
+			channels[1] = new ChannelData(sideSamples, count, sampleSize + 1, ChannelData.ChannelName.SIDE);
 
 		for (int i = 0; i < count; i++) {
 			int temp = samples[2 * i] + samples[2 * i + 1] >> 1;
@@ -576,8 +572,7 @@ public class Frame {
 		return result;
 	}
 
-	private ChannelData[][] getChannelsToEncode(int[] samples, int count, int channels,
-			int sampleSize) {
+	private ChannelData[][] getChannelsToEncode(int[] samples, int count, int channels, int sampleSize) {
 		ChannelData[] independent = indChanData;
 		ChannelData[] midSide = msChanData;
 		// ChannelData[][] results = new ChannelData[channels];
@@ -647,8 +642,7 @@ public class Frame {
 		return result;
 	}
 
-	private EncodingConfiguration.ChannelConfig selectOptimalChannels(ChannelData[] independent,
-			ChannelData[] midSide, int count) {
+	private EncodingConfiguration.ChannelConfig selectOptimalChannels(ChannelData[] independent, ChannelData[] midSide, int count) {
 		EncodingConfiguration.ChannelConfig result;
 		// Calculate sum for each channel.
 		long[] sumInd = sumChannelSamplesABS(independent);
@@ -687,8 +681,7 @@ public class Frame {
 		return result;
 	}
 
-	private static int encodeMidSide(int[] samples, int count, int start, int skip,
-			EncodedElement data, int offset, Frame f) {
+	private static int encodeMidSide(int[] samples, int count, int start, int skip, EncodedElement data, int offset, Frame f) {
 		int[] midSide = new int[samples.length];
 		for (int i = 0; i < count; i++) {
 			int temp = samples[2 * i] + samples[2 * i + 1] >> 1;
@@ -711,8 +704,7 @@ public class Frame {
 		return variance;
 	}
 
-	private static double getVariance(double mean, int[] samples, int count, int start,
-			int increment) {
+	private static double getVariance(double mean, int[] samples, int count, int start, int increment) {
 		double var = 0;
 
 		for (int i = 0; i < count; i++) {
@@ -724,8 +716,7 @@ public class Frame {
 		return var;
 	}
 
-	private static int allChannelDecorrelation(int[] samples, int count, int start, int skip,
-			EncodedElement data, int offset, Frame f) {
+	private static int allChannelDecorrelation(int[] samples, int count, int start, int skip, EncodedElement data, int offset, Frame f) {
 		if (DEBUG_LEV > 0) {
 			System.err.println("Frame::allChannelDecorrelation(...)");
 		}
