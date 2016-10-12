@@ -20,9 +20,11 @@
 package javaFlacEncoder;
 
 /**
- * This class defines the configuration options that may not change throughout a FLAC stream. In
- * general, these setting must be set to match the input audio used(sample rate, sample size,
- * channels, etc). After a stream has started, these settings must not change.
+ * This class defines the configuration options that may not change throughout a
+ * FLAC stream. In general, these setting must be set to match the input audio
+ * used(sample rate, sample size, channels, etc). After a stream has started,
+ * these settings must not change.
+ * 
  * @author Preston Lacey
  */
 public class StreamConfiguration implements Cloneable {
@@ -40,8 +42,8 @@ public class StreamConfiguration implements Cloneable {
 	/** Minimum bits per sample allowed(defined by flac spec) */
 	public static final int MIN_BITS_PER_SAMPLE = 4;
 	/**
-	 * Maximum bits per sample allowed(FLAC spec allows 32, limited to 24 here due to limits in
-	 * code)
+	 * Maximum bits per sample allowed(FLAC spec allows 32, limited to 24 here
+	 * due to limits in code)
 	 */
 	public static final int MAX_BITS_PER_SAMPLE = 24;
 	/** Default channel count */
@@ -61,13 +63,16 @@ public class StreamConfiguration implements Cloneable {
 	int sampleRate;
 	int bitsPerSample;
 
-	/* is the currently set configuration valid? Encoders should not attempt to use an invalid
-	 * configuration */
+	/*
+	 * is the currently set configuration valid? Encoders should not attempt to
+	 * use an invalid configuration
+	 */
 	boolean validConfig = false;
 
 	/**
-	 * Constructor, sets defaults for most values. Some default values must be changed to match the
-	 * audio characteristics(channel count, sample rate, sample size).
+	 * Constructor, sets defaults for most values. Some default values must be
+	 * changed to match the audio characteristics(channel count, sample rate,
+	 * sample size).
 	 */
 	public StreamConfiguration() {
 		channelCount = DEFAULT_CHANNEL_COUNT;
@@ -80,6 +85,7 @@ public class StreamConfiguration implements Cloneable {
 
 	/**
 	 * Copy Constructor. No values are altered or verified for sanity
+	 * 
 	 * @param sc
 	 *            StreamConfiguration object to copy
 	 */
@@ -93,10 +99,12 @@ public class StreamConfiguration implements Cloneable {
 	}
 
 	/**
-	 * Constructor, allows setting of all options. In general, parameters given must match the input
-	 * audio characteristics. minBlock and maxBlock may be set as desired, though minBlock is
-	 * expected to be less than or equal to maxBlock. If minBlock or maxBlock is out of a valid
-	 * range, it will be automatically adjusted to the closest valid value.
+	 * Constructor, allows setting of all options. In general, parameters given
+	 * must match the input audio characteristics. minBlock and maxBlock may be
+	 * set as desired, though minBlock is expected to be less than or equal to
+	 * maxBlock. If minBlock or maxBlock is out of a valid range, it will be
+	 * automatically adjusted to the closest valid value.
+	 * 
 	 * @param channelCount
 	 *            number of channels in source audio stream
 	 * @param minBlock
@@ -108,8 +116,7 @@ public class StreamConfiguration implements Cloneable {
 	 * @param bitsPerSample
 	 *            sample size of audio stream
 	 */
-	public StreamConfiguration(int channelCount, int minBlock, int maxBlock, int sampleRate,
-			int bitsPerSample) {
+	public StreamConfiguration(int channelCount, int minBlock, int maxBlock, int sampleRate, int bitsPerSample) {
 		validConfig = true;
 		validConfig &= setChannelCount(channelCount);
 		validConfig &= setSampleRate(sampleRate);
@@ -119,10 +126,13 @@ public class StreamConfiguration implements Cloneable {
 	}
 
 	/**
-	 * Test if the current configuration is valid. While most set methods will ensure the values are
-	 * in a valid range before setting them, some settings(such as number of channels), cannot be
-	 * guessed. This method may alter current values to make them valid if possible.
-	 * @return true if configuration defines a valid FLAC stream, false othwerise.
+	 * Test if the current configuration is valid. While most set methods will
+	 * ensure the values are in a valid range before setting them, some
+	 * settings(such as number of channels), cannot be guessed. This method may
+	 * alter current values to make them valid if possible.
+	 * 
+	 * @return true if configuration defines a valid FLAC stream, false
+	 *         othwerise.
 	 */
 	public boolean isValid() {
 		validConfig = true;
@@ -136,11 +146,14 @@ public class StreamConfiguration implements Cloneable {
 	}
 
 	/**
-	 * Set number of channels in stream. Because this is not a value that may be guessed and
-	 * corrected, the value will be set to that given even if it is not valid.
+	 * Set number of channels in stream. Because this is not a value that may be
+	 * guessed and corrected, the value will be set to that given even if it is
+	 * not valid.
+	 * 
 	 * @param count
 	 *            Number of channels
-	 * @return true if the channel count is within the valid range, false otherwise.
+	 * @return true if the channel count is within the valid range, false
+	 *         otherwise.
 	 */
 	public boolean setChannelCount(int count) {
 		boolean result = count > 0 && count <= MAX_CHANNEL_COUNT;
@@ -150,6 +163,7 @@ public class StreamConfiguration implements Cloneable {
 
 	/**
 	 * Get the currently set channel count
+	 * 
 	 * @return channel count
 	 */
 	public int getChannelCount() {
@@ -158,6 +172,7 @@ public class StreamConfiguration implements Cloneable {
 
 	/**
 	 * Get the currently set maximum block size
+	 * 
 	 * @return maximum block size
 	 */
 	public int getMaxBlockSize() {
@@ -166,6 +181,7 @@ public class StreamConfiguration implements Cloneable {
 
 	/**
 	 * Get the currently set minimum block size
+	 * 
 	 * @return minimum block size
 	 */
 	public int getMinBlockSize() {
@@ -174,6 +190,7 @@ public class StreamConfiguration implements Cloneable {
 
 	/**
 	 * Get the currently set sample rate
+	 * 
 	 * @return sample rate(in Hz)
 	 */
 	public int getSampleRate() {
@@ -181,8 +198,9 @@ public class StreamConfiguration implements Cloneable {
 	}
 
 	/**
-	 * Set the sample rate. Because this is not a value that may be guessed and corrected, the value
-	 * will be set to that given even if it is not valid.
+	 * Set the sample rate. Because this is not a value that may be guessed and
+	 * corrected, the value will be set to that given even if it is not valid.
+	 * 
 	 * @param rate
 	 *            sample rate(in Hz)
 	 * @return true if given rate was within the valid range, false otherwise.
@@ -195,6 +213,7 @@ public class StreamConfiguration implements Cloneable {
 
 	/**
 	 * Get the number of bits per sample
+	 * 
 	 * @return bits per sample
 	 */
 	public int getBitsPerSample() {
@@ -202,23 +221,25 @@ public class StreamConfiguration implements Cloneable {
 	}
 
 	/**
-	 * Set the bits per sample. Because this is not a value that may be guessed and corrected, the
-	 * value will be set to that given even if it is not valid.
+	 * Set the bits per sample. Because this is not a value that may be guessed
+	 * and corrected, the value will be set to that given even if it is not
+	 * valid.
+	 * 
 	 * @param bitsPerSample
 	 *            number of bits per sample
 	 * @return true if value given is within the valid range, false otherwise.
 	 */
 	public boolean setBitsPerSample(int bitsPerSample) {
-		boolean result = bitsPerSample <= MAX_BITS_PER_SAMPLE
-				&& bitsPerSample >= MIN_BITS_PER_SAMPLE;
+		boolean result = bitsPerSample <= MAX_BITS_PER_SAMPLE && bitsPerSample >= MIN_BITS_PER_SAMPLE;
 		this.bitsPerSample = bitsPerSample;
 		return result;
 	}
 
 	/**
-	 * Set the maximum block size to use. If this value is out of a valid range, it will be set to
-	 * the closest valid value. User must ensure that this value is set above or equal to the
-	 * minimum block size.
+	 * Set the maximum block size to use. If this value is out of a valid range,
+	 * it will be set to the closest valid value. User must ensure that this
+	 * value is set above or equal to the minimum block size.
+	 * 
 	 * @param size
 	 *            maximum block size to use.
 	 * @return actual size set
@@ -230,9 +251,10 @@ public class StreamConfiguration implements Cloneable {
 	}
 
 	/**
-	 * Set the minimum block size to use. If this value is out of a valid range, it will be set to
-	 * the closest valid value. User must ensure that this value is set below or equal to the
-	 * maximum block size.
+	 * Set the minimum block size to use. If this value is out of a valid range,
+	 * it will be set to the closest valid value. User must ensure that this
+	 * value is set below or equal to the maximum block size.
+	 * 
 	 * @param size
 	 *            minimum block size to use.
 	 * @return actual size set
@@ -244,13 +266,14 @@ public class StreamConfiguration implements Cloneable {
 	}
 
 	/**
-	 * Test if stream is Subset compliant. FLAC defines a subset of options to ensure resulting FLAC
-	 * streams are streamable. Not all options in that subset are defined by the StreamConfiguration
-	 * class, however, but exist in the EncodingConfiguration class. Therefore, the alternative
-	 * method
+	 * Test if stream is Subset compliant. FLAC defines a subset of options to
+	 * ensure resulting FLAC streams are streamable. Not all options in that
+	 * subset are defined by the StreamConfiguration class, however, but exist
+	 * in the EncodingConfiguration class. Therefore, the alternative method
 	 * {@link StreamConfiguration#isEncodingSubsetCompliant(javaFlacEncoder.EncodingConfiguration)
-	 * isEncodingSubsetCompliant} should be checked as well to ensure the combined Stream/Encoding
-	 * configurations are BOTH valid.
+	 * isEncodingSubsetCompliant} should be checked as well to ensure the
+	 * combined Stream/Encoding configurations are BOTH valid.
+	 * 
 	 * @return true if this configuration is Subset compliant, false otherwise.
 	 */
 	public boolean isStreamSubsetCompliant() {
@@ -272,11 +295,14 @@ public class StreamConfiguration implements Cloneable {
 	}
 
 	/**
-	 * Test if this StreamConfiguration and a paired EncodingConfiguration define a Subset compliant
-	 * stream. FLAC defines a subset of options to ensure resulting FLAC streams are streamable.
+	 * Test if this StreamConfiguration and a paired EncodingConfiguration
+	 * define a Subset compliant stream. FLAC defines a subset of options to
+	 * ensure resulting FLAC streams are streamable.
+	 * 
 	 * @param ec
 	 *            EncodingConfiguration object to check against
-	 * @return true if these configurations are Subset compliant, false otherwise.
+	 * @return true if these configurations are Subset compliant, false
+	 *         otherwise.
 	 */
 	public boolean isEncodingSubsetCompliant(EncodingConfiguration ec) {
 		boolean result = true;
