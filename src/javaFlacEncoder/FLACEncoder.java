@@ -32,25 +32,22 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * This class defines a FLAC Encoder with a simple interface for enabling FLAC encoding support in
- * an application. This class is appropriate for use in the case where you have raw pcm audio
- * samples that you wish to encode. Currently, fixed-blocksize only is implemented, and the
- * "Maximum Block Size" set in the StreamConfiguration object is used as the actual block size. <br>
+ * This class defines a FLAC Encoder with a simple interface for enabling FLAC encoding support in an application. This class is appropriate for use in the case where you have raw pcm audio samples
+ * that you wish to encode. Currently, fixed-blocksize only is implemented, and the "Maximum Block Size" set in the StreamConfiguration object is used as the actual block size. <br>
  * <br>
  * <br>
  * An encoding process is simple, and should follow these steps:<br>
- * <BLOCKQUOTE> 1) Set StreamConfiguration to appropriate values. After a stream is opened, this
- * must not be altered until the stream is closed.<br>
+ * <BLOCKQUOTE> 1) Set StreamConfiguration to appropriate values. After a stream is opened, this must not be altered until the stream is closed.<br>
  * 2) Set FLACOutputStream, object to write results to.<br>
  * 3) Open FLAC Stream<br>
  * 4) Set EncodingConfiguration(if defaults are insufficient).<br>
  * 5) Add samples to encoder<br>
  * 6) Encode Samples<br>
  * 7) Close stream<br>
- * (note: steps 4,5, and 6 may be done repeatedly, in any order. However, see related method
- * documentation for info on concurrent use. For step 7, see the documentation for the
- * encodeSamples(...) methods' "end" parameter) </BLOCKQUOTE><br>
+ * (note: steps 4,5, and 6 may be done repeatedly, in any order. However, see related method documentation for info on concurrent use. For step 7, see the documentation for the encodeSamples(...)
+ * methods' "end" parameter) </BLOCKQUOTE><br>
  * <br>
+ * 
  * @author Preston Lacey
  */
 public class FLACEncoder {
@@ -59,8 +56,7 @@ public class FLACEncoder {
 	private final int DEBUG_LEV = 0;
 
 	/**
-	 * Maximum Threads to use for encoding frames(more threads than this will exist, these threads
-	 * are reserved for encoding of frames only).
+	 * Maximum Threads to use for encoding frames(more threads than this will exist, these threads are reserved for encoding of frames only).
 	 */
 	private final int MAX_THREADED_FRAMES = Runtime.getRuntime().availableProcessors();
 
@@ -71,7 +67,8 @@ public class FLACEncoder {
 	private StreamConfiguration streamConfig;
 
 	/*
-	 * Set true if frames are actively being encoded(can't change settings while this is true) */
+	 * Set true if frames are actively being encoded(can't change settings while this is true)
+	 */
 	private volatile Boolean isEncoding = false; // XXX: This is literally never true.
 
 	/* synchronize on this object when encoding or changing configurations */
@@ -101,9 +98,10 @@ public class FLACEncoder {
 	/* threadManager used with threaded encoding */
 	private BlockThreadManager threadManager;
 
-	/* threagedFrames keeps track of frames given to threadManager. We must still update the
-	 * configurations of them as needed. If we ever create new frames(e.g, when changing stream
-	 * configuration), we must create a new threadManager as well. */
+	/*
+	 * threagedFrames keeps track of frames given to threadManager. We must still update the configurations of them as needed. If we ever create new frames(e.g, when changing stream configuration), we
+	 * must create a new threadManager as well.
+	 */
 	private Frame[] threadedFrames;
 
 	/* minimum frame size seen so far. Used in the stream header */
@@ -124,8 +122,9 @@ public class FLACEncoder {
 	/* next frame number to use */
 	private long nextFrameNumber;
 
-	/* position of header in output stream location(needed so we can update the header info(md5,
-	 * minBlockSize, etc), once encoding is done */
+	/*
+	 * position of header in output stream location(needed so we can update the header info(md5, minBlockSize, etc), once encoding is done
+	 */
 	private long streamHeaderPos;
 
 	/* store used encodeRequests so we don't have to reallocate space for them */
@@ -136,10 +135,8 @@ public class FLACEncoder {
 	private byte[] _dataMD5;
 
 	/**
-	 * Constructor which creates a new encoder object with the default settings. The
-	 * StreamConfiguration should be reset to match the audio used and an output stream set, but the
-	 * default EncodingConfiguration should be ok for most purposes. When using threaded encoding,
-	 * the default number of threads used is equal to FLACEncoder.MAX_THREADED_FRAMES.
+	 * Constructor which creates a new encoder object with the default settings. The StreamConfiguration should be reset to match the audio used and an output stream set, but the default
+	 * EncodingConfiguration should be ok for most purposes. When using threaded encoding, the default number of threads used is equal to FLACEncoder.MAX_THREADED_FRAMES.
 	 */
 	public FLACEncoder() {
 		usedBlockEncodeRequests = new LinkedBlockingQueue<BlockEncodeRequest>();
@@ -165,19 +162,17 @@ public class FLACEncoder {
 		try {
 			return MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException("Impossible error: No MD5 algorithm exists. "
-					+ "This encoder cannot function.");
+			throw new RuntimeException("Impossible error: No MD5 algorithm exists. " + "This encoder cannot function.");
 		}
 	}
 
 	/**
-	 * Set the encoding configuration to that specified. The given encoding configuration is not
-	 * stored by this object, but instead copied. This is to prevent the alteration of the config
-	 * during an encode process.
+	 * Set the encoding configuration to that specified. The given encoding configuration is not stored by this object, but instead copied. This is to prevent the alteration of the config during an
+	 * encode process.
+	 * 
 	 * @param ec
 	 *            EncodingConfiguration to use.
-	 * @return true if the configuration was altered; false if the configuration cannot be
-	 *         altered(such as if another thread is currently encoding).
+	 * @return true if the configuration was altered; false if the configuration cannot be altered(such as if another thread is currently encoding).
 	 */
 	public boolean setEncodingConfiguration(EncodingConfiguration newec) {
 		boolean changed = false;
@@ -195,15 +190,13 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * Set the stream configuration to that specified. The given stream configuration is not stored
-	 * by this object, but instead copied. This is to prevent the alteration of the config during an
-	 * encode process. This method must not be called in the middle of a stream, stream contents may
-	 * become invalid. A call to setStreamConfiguration() should be followed next by setting the
-	 * output stream if not yet done, and then calling openFLACStream();
+	 * Set the stream configuration to that specified. The given stream configuration is not stored by this object, but instead copied. This is to prevent the alteration of the config during an encode
+	 * process. This method must not be called in the middle of a stream, stream contents may become invalid. A call to setStreamConfiguration() should be followed next by setting the output stream if
+	 * not yet done, and then calling openFLACStream();
+	 * 
 	 * @param sc
 	 *            StreamConfiguration to use.
-	 * @return true if the configuration was altered; false if the configuration cannot be
-	 *         altered(such as if another thread is currently encoding).
+	 * @return true if the configuration was altered; false if the configuration cannot be altered(such as if another thread is currently encoding).
 	 */
 	public boolean setStreamConfiguration(StreamConfiguration newsc) {
 		boolean changed = false;
@@ -226,8 +219,7 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * Reset the values to their initial state, in preparation of starting a new stream. Does *not*
-	 * clear any stored, unwritten data. To flush stored samples, call clear().
+	 * Reset the values to their initial state, in preparation of starting a new stream. Does *not* clear any stored, unwritten data. To flush stored samples, call clear().
 	 */
 	private void reset() {
 		// reset stream
@@ -242,9 +234,8 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * Clear all samples stored by this object, but not yet encoded. Should be called between
-	 * encoding differrent streams(before more samples are added), unless you desire to keep
-	 * unencoded samples. This does NOT reset or close the active stream.
+	 * Clear all samples stored by this object, but not yet encoded. Should be called between encoding differrent streams(before more samples are added), unless you desire to keep unencoded samples.
+	 * This does NOT reset or close the active stream.
 	 */
 	public void clear() {
 		unfinishedBlock = null;
@@ -253,8 +244,7 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * Close the current FLAC stream. Updates the stream header information. If called on a closed
-	 * stream, operation is undefined. Do not do this.
+	 * Close the current FLAC stream. Updates the stream header information. If called on a closed stream, operation is undefined. Do not do this.
 	 */
 	private void closeFLACStream() throws IOException {
 		// reset position in output stream to beginning.
@@ -265,8 +255,7 @@ public class FLACEncoder {
 		streamConfig.setMaxBlockSize(maxBlockSize);
 		streamConfig.setMinBlockSize(minBlockSize);
 		byte[] md5 = md.digest();
-		EncodedElement streamInfo = MetadataBlockStreamInfo.getStreamInfo(streamConfig,
-				minFrameSize, maxFrameSize, samplesInStream, md5);
+		EncodedElement streamInfo = MetadataBlockStreamInfo.getStreamInfo(streamConfig, minFrameSize, maxFrameSize, samplesInStream, md5);
 		if (out.canSeek()) {
 			out.seek(streamHeaderPos);
 			writeDataToOutput(streamInfo);
@@ -274,12 +263,10 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * Begin a new FLAC stream. Prior to calling this, you must have already set the
-	 * StreamConfiguration and the output stream, both of which must not change until encoding is
-	 * finished and the stream is closed. If this FLACEncoder object has already been used to encode
-	 * a stream, unencoded samples may still be stored. Use clear() to dump them prior to calling
-	 * this method(if clear() not called, and samples are instead retained, the StreamConfiguration
-	 * must NOT have changed from the prior stream.
+	 * Begin a new FLAC stream. Prior to calling this, you must have already set the StreamConfiguration and the output stream, both of which must not change until encoding is finished and the stream
+	 * is closed. If this FLACEncoder object has already been used to encode a stream, unencoded samples may still be stored. Use clear() to dump them prior to calling this method(if clear() not
+	 * called, and samples are instead retained, the StreamConfiguration must NOT have changed from the prior stream.
+	 * 
 	 * @throws IOException
 	 *             if there is an error writing the headers to output.
 	 */
@@ -291,35 +278,27 @@ public class FLACEncoder {
 		// write stream headers. These must be updated at close of stream
 		byte[] md5Hash = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };// blank hash. Don't
 																			// know it yet.
-		EncodedElement streamInfo = MetadataBlockStreamInfo.getStreamInfo(streamConfig,
-				minFrameSize, maxFrameSize, samplesInStream, md5Hash);
+		EncodedElement streamInfo = MetadataBlockStreamInfo.getStreamInfo(streamConfig, minFrameSize, maxFrameSize, samplesInStream, md5Hash);
 		// mark stream info location(so we can return to it and re-write headers,
 		// assuming stream is seekable. Then write header.
 		int size = streamInfo.getUsableBits() / 8;
-		EncodedElement metadataBlockHeader = MetadataBlockHeader.getMetadataBlockHeader(true,
-				MetadataBlockHeader.MetadataBlockType.STREAMINFO, size);
+		EncodedElement metadataBlockHeader = MetadataBlockHeader.getMetadataBlockHeader(true, MetadataBlockHeader.MetadataBlockType.STREAMINFO, size);
 		writeDataToOutput(metadataBlockHeader);
 		streamHeaderPos = out.getPos();
 		out.write(streamInfo.getData(), 0, size);
 	}
 
 	/**
-	 * Add samples to the encoder, so they may then be encoded. This method uses breaks the samples
-	 * into blocks, which will then be made available to encode.
+	 * Add samples to the encoder, so they may then be encoded. This method uses breaks the samples into blocks, which will then be made available to encode.
+	 * 
 	 * @param samples
-	 *            Array holding the samples to encode. For all multi-channel audio, the samples must
-	 *            be interleaved in this array. For example, with stereo: sample 0 will belong to
-	 *            the first channel, 1 the second, 2 the first, 3 the second, etc. Samples are
-	 *            interpreted according to the current configuration(for things such as channel and
-	 *            bits-per-sample).
+	 *            Array holding the samples to encode. For all multi-channel audio, the samples must be interleaved in this array. For example, with stereo: sample 0 will belong to the first channel,
+	 *            1 the second, 2 the first, 3 the second, etc. Samples are interpreted according to the current configuration(for things such as channel and bits-per-sample).
 	 * @param count
-	 *            Number of interchannel samples to add. For example, with stero: if this is 4000,
-	 *            then "samples" must contain 4000 left samples and 4000 right samples, interleaved
-	 *            in the array.
-	 * @return true if samples were added, false otherwise. A value of false may result if "count" is
-	 *         set to a size that is too large to be valid with the given array and current
-	 *         configuration.
+	 *            Number of interchannel samples to add. For example, with stero: if this is 4000, then "samples" must contain 4000 left samples and 4000 right samples, interleaved in the array.
+	 * @return true if samples were added, false otherwise. A value of false may result if "count" is set to a size that is too large to be valid with the given array and current configuration.
 	 */
+	@SuppressWarnings("unused")
 	public boolean addSamples(int[] samples, int count) {
 		boolean added = false;
 		// get number of channels
@@ -348,8 +327,7 @@ public class FLACEncoder {
 				int[] block = unfinishedBlock;
 				int unfinishedBlockRemaining = blockSize * channels - unfinishedBlockUsed;
 				if (unfinishedBlockRemaining <= 0) {
-					System.err.println("MAJOR ERROR HERE. Unfinsihed block remaining invalid: "
-							+ unfinishedBlockRemaining); // XXX
+					System.err.println("MAJOR ERROR HERE. Unfinsihed block remaining invalid: " + unfinishedBlockRemaining); // XXX
 					System.exit(-1);
 				}
 
@@ -369,8 +347,7 @@ public class FLACEncoder {
 					unfinishedBlockUsed = 0;
 					unfinishedBlock = null;
 				} else if (unfinishedBlockUsed > blockSize * channels) {
-					System.err.println("Error: FLACEncoder.addSamples(...) "
-							+ "unfinished block = " + unfinishedBlockUsed); // XXX
+					System.err.println("Error: FLACEncoder.addSamples(...) " + "unfinished block = " + unfinishedBlockUsed); // XXX
 					System.exit(-1);
 				}
 			}
@@ -379,8 +356,9 @@ public class FLACEncoder {
 					System.err.println("addSamples(...): creating new block"); // XXX
 				// copy values to approrpiate locations
 				// add each finished array to the queue
-				/* <implement_for_variable_blocksize> blockSize = this.getNextBlockSize(samples,
-				 * validSamples); */
+				/*
+				 * <implement_for_variable_blocksize> blockSize = this.getNextBlockSize(samples, validSamples);
+				 */
 				int blockSize = streamConfig.getMaxBlockSize();
 				// int[] block = new int[blockSize*channels];
 				int[] block = recycler.getArray(blockSize * channels);
@@ -415,8 +393,8 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * This function is for development purposes only. It likely serves no further point and perhaps
-	 * is worthy of being removed.
+	 * This function is for development purposes only. It likely serves no further point and perhaps is worthy of being removed.
+	 * 
 	 * @param block
 	 * @param count
 	 * @param iter
@@ -447,10 +425,9 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * Notify the encoder that a BlockEncodeRequest has finished, and is now ready to be written to
-	 * file. The encoder expects that these requests come back in the same order the encoder sent
-	 * them out. This is intended to be used in threading mode only at the moment(sending them to a
-	 * BlockThreadManager object)
+	 * Notify the encoder that a BlockEncodeRequest has finished, and is now ready to be written to file. The encoder expects that these requests come back in the same order the encoder sent them out.
+	 * This is intended to be used in threading mode only at the moment(sending them to a BlockThreadManager object)
+	 * 
 	 * @param ber
 	 *            BlockEncodeRequest that is ready to write to file.
 	 */
@@ -465,8 +442,7 @@ public class FLACEncoder {
 
 			// update encodedCount and count, and blocks, MD5
 			if (ber.count != ber.encodedSamples) {
-				System.err.println("Error encoding frame number: " + ber.frameNumber
-						+ ", FLAC stream potentially invalid"); // XXX
+				System.err.println("Error encoding frame number: " + ber.frameNumber + ", FLAC stream potentially invalid"); // XXX
 			}
 			samplesInStream += ber.encodedSamples;
 			if (ber.encodedSamples > maxBlockSize)
@@ -478,8 +454,7 @@ public class FLACEncoder {
 				maxFrameSize = frameSize;
 			if (frameSize < minFrameSize)
 				minFrameSize = frameSize;
-			addSamplesToMD5(ber.samples, ber.encodedSamples, ber.skip + 1,
-					streamConfig.getBitsPerSample());
+			addSamplesToMD5(ber.samples, ber.encodedSamples, ber.skip + 1, streamConfig.getBitsPerSample());
 			recycler.add(ber.samples);
 			ber.result = null;
 			ber.samples = null;
@@ -489,23 +464,19 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * Attempt to Encode a certain number of samples(threaded version). Encodes as close to count as
-	 * possible. Uses multiple threads to speed up encoding.
+	 * Attempt to Encode a certain number of samples(threaded version). Encodes as close to count as possible. Uses multiple threads to speed up encoding.
+	 * 
 	 * @param count
-	 *            number of samples to attempt to encode. Actual number encoded may be greater or
-	 *            less if count does not end on a block boundary.
+	 *            number of samples to attempt to encode. Actual number encoded may be greater or less if count does not end on a block boundary.
 	 * @param end
-	 *            true to finalize stream after encode, false otherwise. If set to true, and return
-	 *            value is greater than or equal to given count, no more encoding must be attempted
-	 *            until a new stream is began.
-	 * @return number of samples encoded. This may be greater or less than requested count if count
-	 *         does not end on a block boundary. This is NOT an error condition. If end was set
-	 *         "true", and returned count is less than requested count, then end was NOT done, if
-	 *         you still wish to end stream, call this again with end true and a count of of <=
-	 *         samplesAvailableToEncode()
+	 *            true to finalize stream after encode, false otherwise. If set to true, and return value is greater than or equal to given count, no more encoding must be attempted until a new stream
+	 *            is began.
+	 * @return number of samples encoded. This may be greater or less than requested count if count does not end on a block boundary. This is NOT an error condition. If end was set "true", and
+	 *         returned count is less than requested count, then end was NOT done, if you still wish to end stream, call this again with end true and a count of of <= samplesAvailableToEncode()
 	 * @throws IOException
 	 *             if there was an error writing the results to file.
 	 */
+	@SuppressWarnings("unused")
 	public int t_encodeSamples(int count, boolean end) throws IOException {
 		int encodedCount = 0;
 
@@ -549,8 +520,7 @@ public class FLACEncoder {
 					block = unfinishedBlock;
 				int encodedSamples = count;// interchannel samples
 				EncodedElement result = new EncodedElement(1, 0);
-				int encoded = frame.encodeSamples(block, encodedSamples, 0, channels - 1, result,
-						nextFrameNumber);
+				int encoded = frame.encodeSamples(block, encodedSamples, 0, channels - 1, result, nextFrameNumber);
 				if (encoded != encodedSamples) {
 					// ERROR! Return immediately. Do not add results to output.
 					System.err.println("FLACEncoder::encodeSamples : (end)Error in encoding"); // XXX
@@ -561,8 +531,7 @@ public class FLACEncoder {
 					encodedCount += encodedSamples;
 					count -= encodedSamples;
 					// addSamplesToMD5(block, encodedSamples, 0,channels);
-					addSamplesToMD5(block, encodedSamples, channels,
-							streamConfig.getBitsPerSample());
+					addSamplesToMD5(block, encodedSamples, channels, streamConfig.getBitsPerSample());
 					samplesInStream += encodedSamples;
 					nextFrameNumber++;
 					if (encodedSamples > maxBlockSize)
@@ -594,21 +563,18 @@ public class FLACEncoder {
 
 	/**
 	 * Attempt to Encode a certain number of samples. Encodes as close to count as possible.
+	 * 
 	 * @param count
-	 *            number of samples to attempt to encode. Actual number encoded may be greater or
-	 *            less if count does not end on a block boundary.
+	 *            number of samples to attempt to encode. Actual number encoded may be greater or less if count does not end on a block boundary.
 	 * @param end
-	 *            true to finalize stream after encode, false otherwise. If set to true, and return
-	 *            value is greater than or equal to given count, no more encoding must be attempted
-	 *            until a new stream is began.
-	 * @return number of samples encoded. This may be greater or less than requested count if count
-	 *         does not end on a block boundary. This is NOT an error condition. If end was set
-	 *         "true", and returned count is less than requested count, then end was NOT done, if
-	 *         you still wish to end stream, call this again with end true and a count of of <=
-	 *         samplesAvailableToEncode()
+	 *            true to finalize stream after encode, false otherwise. If set to true, and return value is greater than or equal to given count, no more encoding must be attempted until a new stream
+	 *            is began.
+	 * @return number of samples encoded. This may be greater or less than requested count if count does not end on a block boundary. This is NOT an error condition. If end was set "true", and
+	 *         returned count is less than requested count, then end was NOT done, if you still wish to end stream, call this again with end true and a count of of <= samplesAvailableToEncode()
 	 * @throws IOException
 	 *             if there was an error writing the results to file.
 	 */
+	@SuppressWarnings("unused")
 	public int encodeSamples(int count, boolean end) throws IOException {
 		// System.err.println("starting encoding :");
 		int encodedCount = 0;
@@ -627,8 +593,7 @@ public class FLACEncoder {
 			int encodedSamples = block.length / channels;// interchannel samples
 			// count -= encodedSamples;
 			EncodedElement result = new EncodedElement(1, 0);
-			int encoded = frame.encodeSamples(block, encodedSamples, 0, channels - 1, result,
-					nextFrameNumber);
+			int encoded = frame.encodeSamples(block, encodedSamples, 0, channels - 1, result, nextFrameNumber);
 			if (encoded != encodedSamples) {
 				// ERROR! Return immediately. Do not add results to output.
 				System.err.println("FLACEncoder::encodeSamples : Error in encoding"); // XXX
@@ -673,8 +638,7 @@ public class FLACEncoder {
 					block = unfinishedBlock;
 				int encodedSamples = count;// interchannel samples
 				EncodedElement result = new EncodedElement(1, 0);
-				int encoded = frame.encodeSamples(block, encodedSamples, 0, channels - 1, result,
-						nextFrameNumber);
+				int encoded = frame.encodeSamples(block, encodedSamples, 0, channels - 1, result, nextFrameNumber);
 				if (encoded != encodedSamples) {
 					// ERROR! Return immediately. Do not add results to output.
 					System.err.println("FLACEncoder::encodeSamples : (end)Error in encoding"); // XXX
@@ -685,8 +649,7 @@ public class FLACEncoder {
 					encodedCount += encodedSamples;
 					count -= encodedSamples;
 					// addSamplesToMD5(block, encodedSamples, 0,channels);
-					addSamplesToMD5(block, encodedSamples, channels,
-							streamConfig.getBitsPerSample());
+					addSamplesToMD5(block, encodedSamples, channels, streamConfig.getBitsPerSample());
 					samplesInStream += encodedSamples;
 					nextFrameNumber++;
 					if (encodedSamples > maxBlockSize)
@@ -709,22 +672,19 @@ public class FLACEncoder {
 				closeFLACStream();
 			}
 		} else if (end == true) {
-			System.err.println("End set but not done. Error possible. "
-					+ "This can also happen if number of samples requested to "
-					+ "encode exeeds available samples"); // XXX
+			System.err.println("End set but not done. Error possible. " + "This can also happen if number of samples requested to " + "encode exeeds available samples"); // XXX
 		}
 		return encodedCount;
 	}
 
 	/**
-	 * Add samples to the MD5 hash. CURRENTLY ONLY MAY WORK FOR: sample sizes which are divisible by
-	 * 8. Need to create some audio to test with.
+	 * Add samples to the MD5 hash. CURRENTLY ONLY MAY WORK FOR: sample sizes which are divisible by 8. Need to create some audio to test with.
+	 * 
 	 * @param samples
 	 * @param count
 	 * @param channels
 	 */
-	private void addSamplesToMD5(int[] samples, final int count, final int channels,
-			final int sampleSize) {
+	private void addSamplesToMD5(int[] samples, final int count, final int channels, final int sampleSize) {
 		int bytesPerSample = sampleSize / 8;
 		if (sampleSize % 8 != 0)
 			bytesPerSample++;
@@ -744,11 +704,9 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * Write the data stored in an EncodedElement to the output stream. All data will be written
-	 * along byte boundaries, but the elements in the given list need not end on byte boundaries. If
-	 * the data of an element does not end on a byte boundary, then the space remaining in that last
-	 * byte will be used as an offset, and merged(using an "OR"), with the first byte of the
-	 * following element.
+	 * Write the data stored in an EncodedElement to the output stream. All data will be written along byte boundaries, but the elements in the given list need not end on byte boundaries. If the data
+	 * of an element does not end on a byte boundary, then the space remaining in that last byte will be used as an offset, and merged(using an "OR"), with the first byte of the following element.
+	 * 
 	 * @param data
 	 * @return
 	 * @throws IOException
@@ -772,7 +730,7 @@ public class FLACEncoder {
 			}
 			// write all full bytes of element.
 			lastByte = usableBits / 8;
-			// System.err.println("eleData.length:currentByte:length   :   "+
+			// System.err.println("eleData.length:currentByte:length : "+
 			// eleData.length+":"+currentByte+":"+(lastByte-currentByte));
 			if (lastByte > 0)
 				out.write(eleData, currentByte, lastByte - currentByte);
@@ -794,8 +752,8 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * Get number of samples which are ready to encode. More samples may exist in the encoder as a
-	 * partial block. Use samplesAvailableToEncode() if you wish to include those as well.
+	 * Get number of samples which are ready to encode. More samples may exist in the encoder as a partial block. Use samplesAvailableToEncode() if you wish to include those as well.
+	 * 
 	 * @return number of samples in full blocks, ready to encode.
 	 */
 	public int fullBlockSamplesAvailableToEncode() {
@@ -808,9 +766,9 @@ public class FLACEncoder {
 	}
 
 	/**
-	 * Get number of samples that are available to encode. This includes samples which are in a
-	 * partial block(and so would only be written if "end" was set true in encodeSamples(int
-	 * count,boolean end);
+	 * Get number of samples that are available to encode. This includes samples which are in a partial block(and so would only be written if "end" was set true in encodeSamples(int count,boolean
+	 * end);
+	 * 
 	 * @return number of samples available to encode.
 	 */
 	public int samplesAvailableToEncode() {
@@ -827,6 +785,7 @@ public class FLACEncoder {
 
 	/**
 	 * Set the output stream to use. This must not be called while an encode process is active.
+	 * 
 	 * @param fos
 	 *            output stream to use. This must not be null.
 	 */
